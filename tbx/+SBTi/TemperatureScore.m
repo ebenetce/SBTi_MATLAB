@@ -71,22 +71,23 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :param target: The target as a row of a dataframe
             % :return: The mapped SR15 target
             
-            if startsWith( lower( strip( target.(obj.c.COLS.TARGET_REFERENCE_NUMBER) ) ), obj.c.VALUE_TARGET_REFERENCE_INTENSITY_BASE )
-                
-                dict = obj.c.INTENSITY_MAPPINGS.(target.(obj.c.COLS.INTENSITY_METRIC));
-                try
-                    sr15target = dict.(target.(obj.c.COLS.SCOPE));
-                catch
-                    sr15target = missing;
+            try
+                if startsWith( lower( strip( target.(obj.c.COLS.TARGET_REFERENCE_NUMBER) ) ), obj.c.VALUE_TARGET_REFERENCE_INTENSITY_BASE )
+                    
+                    dict = obj.c.INTENSITY_MAPPINGS.(target.(obj.c.COLS.INTENSITY_METRIC));
+                    sr15target = dict(target.(obj.c.COLS.SCOPE));
+                    
+                else
+                    % Only first 3 characters of ISIC code are relevant for the absolute mappings
+                    try
+                        isic = char(target.(obj.c.COLS.COMPANY_ISIC));
+                        sr15target = obj.c.ABSOLUTE_MAPPINGS.(isic(1:3))(target.(obj.c.COLS.SCOPE));
+                    catch
+                        sr15target = obj.c.ABSOLUTE_MAPPINGS.("other")(target.(obj.c.COLS.SCOPE));
+                    end
                 end
-            else
-                % Only first 3 characters of ISIC code are relevant for the absolute mappings
-                try
-                    isic = char(target.(obj.c.COLS.COMPANY_ISIC));
-                    sr15target = obj.c.ABSOLUTE_MAPPINGS.(isic(1:3))(target.(obj.c.COLS.SCOPE));
-                catch
-                    sr15target = obj.c.ABSOLUTE_MAPPINGS.("other")(target.(obj.c.COLS.SCOPE));
-                end
+            catch
+                sr15target = string(missing);
             end
             
         end
@@ -98,13 +99,13 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :param target: The target as a row of a dataframe
             % :return: The annual reduction
             
-            if ismissing( target.(obj.c.COLS.REDUCTION_AMBITION) )
-                tgt = missing;
+            if isnan( target.(obj.c.COLS.REDUCTION_AMBITION) )
+                tgt = NaN;
                 return
             end
             
             try
-                tgt = target.(obj.c.COLS.REDUCTION_AMBITION) / target.(obj.c.COLS.END_YEAR) - target.(obj.c.COLS.BASE_YEAR);
+                tgt = target.(obj.c.COLS.REDUCTION_AMBITION) / double(target.(obj.c.COLS.END_YEAR) - target.(obj.c.COLS.BASE_YEAR));
             catch
                 error("Couldn't calculate the annual reduction rate because the start and target year are the same")
             end
@@ -142,8 +143,8 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :param target: The target as a row of a data frame
             % :return: The temperature score
             
-            if ismissing(target.(obj.c.COLS.REGRESSION_PARAM)) || ismissing(target.(obj.c.COLS.REGRESSION_INTERCEPT)) || ...
-                ismissing(target.(obj.c.COLS.ANNUAL_REDUCTION_RATE))
+            if isnan(target.(obj.c.COLS.REGRESSION_PARAM)) || isnan(target.(obj.c.COLS.REGRESSION_INTERCEPT)) || ...
+                isnan(target.(obj.c.COLS.ANNUAL_REDUCTION_RATE))
                 sc = obj.fallback_score;
                 rs = 1;
                 return
@@ -154,7 +155,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 sc = ts;
                 rs = 0;
             else
-                sc = ts * obj.c.SBTI_FACTOR + obj.fallback_score * (1 - obj.c.SBTI_FACTOR);
+                sc = ts * obj.c.SBTi_FACTOR + obj.fallback_score * (1 - obj.c.SBTi_FACTOR);
                 rs = 0;
             end
         end
@@ -257,7 +258,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :param data: The results of the calculate method
             % :return: A weighted temperature score for the portfolio
             
-            score_aggregations = ScoreAggregations();
+            score_aggregations = SBTi.interfaces.ScoreAggregations();
             for time_frame = obj.time_frames
                 score_aggregation_scopes = SBTi.interfaces.ScoreAggregationScopes();
                 for scope = obj.scopes
@@ -338,12 +339,12 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :param data: The data to merge
             % :return: The data set, amended with the regression parameters
             
-            data.(obj.c.COLS.SLOPE) = repmat(missing, height(data),1);
+            data.(obj.c.COLS.SLOPE) = repmat(string(missing), height(data),1);
             for i = 1 : height(data)
                 try
                     data{i, obj.c.COLS.SLOPE} = obj.c.SLOPE_MAP.(data{i,obj.c.COLS.TIME_FRAME});
                 catch
-                    data{i, obj.c.COLS.SLOPE} = missing;
+                    data{i, obj.c.COLS.SLOPE} = string(missing);
                 end
             end
             
@@ -374,22 +375,14 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             data{ismissing(data.(obj.c.COLS.TARGET_REFERENCE_NUMBER)), obj.c.COLS.TARGET_REFERENCE_NUMBER} = obj.c.VALUE_TARGET_REFERENCE_ABSOLUTE;
             
             sr15 = [];
-            for i = 1 : height(data)
-                try
-                    sr15 = [sr15; obj.get_target_mapping(data(i,:))];
-                catch
-                    sr15 = [sr15; ""];%%%%%%5
-                end
+            for i = 1 : height(data)                
+                sr15 = [sr15; string(obj.get_target_mapping(data(i,:)))];
             end
             data.(obj.c.COLS.SR15) = sr15;
             
             tgt = [];
             for i = 1 : height(data)
-                try
-                    tgt = [tgt; obj.get_annual_reduction_rate(data(i,:))];
-                catch
-                    tgt = [tgt;""];%%%%%%5
-                end
+                tgt = [tgt; obj.get_annual_reduction_rate(data(i,:))];
             end
             
             data.(obj.c.COLS.ANNUAL_REDUCTION_RATE) = tgt;
@@ -422,8 +415,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             
             company_data = groupsummary(company_data, [obj.c.COLS.COMPANY_ID, obj.c.COLS.TIME_FRAME, obj.c.COLS.SCOPE], 'mean');
             company_data.Properties.VariableNames = strrep(company_data.Properties.VariableNames,"mean_","");
-            data.(obj.c.COLS.TEMPERATURE_SCORE) = NaN(height(data),1);
-            data.(obj.c.TEMPERATURE_RESULTS) = NaN(height(data),1);
+
             for i = 1 : height(data)
                 [sc,rs] = obj.get_ghc_temperature_score(data(i,:), company_data);
                 data{i, obj.c.COLS.TEMPERATURE_SCORE} = sc;

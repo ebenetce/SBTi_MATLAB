@@ -95,16 +95,29 @@ classdef TargetProtocol < handle
             grid_columns = [obj.c.COLS.COMPANY_ID, obj.c.COLS.TIME_FRAME, obj.c.COLS.SCOPE];
             companies = unique(obj.company_data.(obj.c.COLS.COMPANY_ID));
             scopes = [SBTi.interfaces.EScope.S1S2; SBTi.interfaces.EScope.S3; SBTi.interfaces.EScope.S1S2S3];
-            empty_columns = setdiff(obj.target_data.Properties.VariableNames, grid_columns);
-          
+            [empty_columns, ec_idx] = setdiff(obj.target_data.Properties.VariableNames, grid_columns);
+            varTypes = varfun(@class,obj.target_data,'OutputFormat','cell');
+            varTypes = strrep(varTypes(ec_idx),'int64','double');
+            
             ma=size(companies,1);
             B = lower(string(properties(SBTi.interfaces.ETimeFrames)));
             mb=size(string(properties(SBTi.interfaces.ETimeFrames)),1);
             mc=size(scopes,1);
             [d,b,a]=ndgrid(1:mc,1:mb,1:ma);
             product = [companies(a,:),B(b,:), scopes(d,:)];
-            extended_data = array2table([product, repmat(missing, height(product), length(empty_columns))], ...
-                'VariableNames',[grid_columns, empty_columns] );
+            extended_data = array2table(product, 'VariableNames', grid_columns );
+            ed_empty = table('Size', [height(product), length(empty_columns)], ...
+                'VariableNames',empty_columns, ...
+                'VariableTypes',varTypes);
+            
+            for i = 1 : width(ed_empty)
+                if contains(varTypes{i},'double')
+                    ed_empty{:,i} = NaN;
+                end
+            end
+            
+            
+            extended_data = [extended_data, ed_empty];
             
             target_columns = extended_data.Properties.VariableNames;
             

@@ -13,7 +13,7 @@ function company_data = get_company_data(data_providers, company_ids)
     for i = 1 : numel(data_providers)
         dp = data_providers(i);
         try
-            company_data_provider = dp.get_company_data(company_ids)
+            company_data_provider = dp.get_company_data(company_ids);
             company_data = [company_data; company_data_provider];
 %             company_ids = [company for company in company_ids
 %                            if company not in [c.company_id for c in company_data_provider]]
