@@ -24,6 +24,6 @@ portfolio_data = tp.process(target_data, company_data);
 tb_portfolio = portfolio.toTable();
 tb_portfolio.company_name = [];
 portfolio_data = outerjoin(portfolio_data, tb_portfolio, ...
-    "Type", "left", "Keys", "company_id");
+    "Type", "left", "Keys", "company_id","MergeKeys",true);
 
 end

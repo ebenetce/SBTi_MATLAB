@@ -172,8 +172,8 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 rs = row.(obj.c.TEMPERATURE_RESULTS);
                 return
             end
-            s1s2 = company_data(:,row.(obj.c.COLS.COMPANY_ID), row.(obj.c.COLS.TIME_FRAME), SBTi.interfaces.EScope.S1S2);
-            s3   = company_data(:,row.(obj.c.COLS.COMPANY_ID), row.(obj.c.COLS.TIME_FRAME), SBTi.interfaces.EScope.S3);
+            s1s2 = company_data(company_data.company_id == row.(obj.c.COLS.COMPANY_ID) & company_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & company_data.scope == SBTi.interfaces.EScope.S1S2,:);
+            s3   = company_data(company_data.company_id == row.(obj.c.COLS.COMPANY_ID) & company_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & company_data.scope == SBTi.interfaces.EScope.S3,:);
             
             try
                 % If the s3 emissions are less than 40 percent, we'll ignore them altogether, if not, we'll weigh them
@@ -245,7 +245,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 data = obj.calculate_company_score(data);
             end
             % We need to filter the scopes again, because we might have had to add a scope in te preparation step
-            data = data.(data(obj.c.COLS.SCOPE)).isin(obj.scopes);
+            data = data(ismember(data.(obj.c.COLS.SCOPE),obj.scopes),:);
             data.(obj.c.COLS.TEMPERATURE_SCORE) = round(data.(obj.c.COLS.TEMPERATURE_SCORE),2);
             
         end
@@ -350,7 +350,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             newData = outerjoin(data, obj.regression_model, ...
                 'LeftKeys', [obj.c.COLS.SLOPE, obj.c.COLS.SR15], ...
                 'RightKeys', [obj.c.COLS.SLOPE, obj.c.COLS.VARIABLE], ...
-                'Type', 'left');
+                'Type', 'left', 'MergeKeys', true);
         end
         
         function data = prepare_data(obj, data)
@@ -416,16 +416,20 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :return: The data frame, with an updated s1s2s3 temperature score
             
             % Calculate the GHC
-            company_data = data.(:,[obj.c.COLS.COMPANY_ID, obj.c.COLS.TIME_FRAME, ...
+            company_data = data(:,[obj.c.COLS.COMPANY_ID, obj.c.COLS.TIME_FRAME, ...
                 obj.c.COLS.SCOPE, obj.c.COLS.GHG_SCOPE12, obj.c.COLS.GHG_SCOPE3, ...
                 obj.c.COLS.TEMPERATURE_SCORE, obj.c.TEMPERATURE_RESULTS]);
             
-            company_data = groupsummary(company_data, [obj.c.COLS.COMPANY_ID, obj.c.COLS.TIME_FRAME, obj.c.COLS.SCOPE], 'mean') 
+            company_data = groupsummary(company_data, [obj.c.COLS.COMPANY_ID, obj.c.COLS.TIME_FRAME, obj.c.COLS.SCOPE], 'mean');
+            company_data.Properties.VariableNames = strrep(company_data.Properties.VariableNames,"mean_","");
+            data.(obj.c.COLS.TEMPERATURE_SCORE) = NaN(height(data),1);
+            data.(obj.c.TEMPERATURE_RESULTS) = NaN(height(data),1);
+            for i = 1 : height(data)
+                [sc,rs] = obj.get_ghc_temperature_score(data(i,:), company_data);
+                data{i, obj.c.COLS.TEMPERATURE_SCORE} = sc;
+                data{i, obj.c.TEMPERATURE_RESULTS} = rs;
+            end
             
-            [] = obj.get_ghc_temperature_score(row, company_data);
-            
-            data.(obj.c.COLS.TEMPERATURE_SCORE) =
-            data.(obj.c.TEMPERATURE_RESULTS) = 
         end
         
         
