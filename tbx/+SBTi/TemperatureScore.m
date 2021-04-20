@@ -36,7 +36,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             
             parse(p, varargin{:})
             
-            r = p.Results;            
+            r = p.Results;
             
             obj = obj@SBTi.PortfolioAggregation(r.config);
             
@@ -111,30 +111,30 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             end
             
         end
-%         
-%         function get_regression(obj, target: pd.Series) -> Tuple[Optional[float], Optional[float]]:
-%             
-%             % Get the regression parameter and intercept from the model's output.
-%             
-%             % :param target: The target as a row of a dataframe
-%             % :return: The regression parameter and intercept
-%             
-%             if pd.isnull(target[obj.c.COLS.SR15]):
-%                 return None, None
-%             end
-%             
-%             regression = obj.regression_model[
-%                 (obj.regression_model[obj.c.COLS.VARIABLE] == target[obj.c.COLS.SR15]) &
-%                 (obj.regression_model[obj.c.COLS.SLOPE] == obj.c.SLOPE_MAP[target[obj.c.COLS.TIME_FRAME]])]
-%             if len(regression) == 0
-%                 return None, None
-%             elseif len(regression) > 1
-%                 % There should never be more than one potential mapping
-%                 raise ValueError("There is more than one potential regression parameter for this SR15 goal.")
-%             else
-%                 return regression.iloc[0][obj.c.COLS.PARAM], regression.iloc[0][obj.c.COLS.INTERCEPT]
-%             end
-%         end
+        %
+        %         function get_regression(obj, target: pd.Series) -> Tuple[Optional[float], Optional[float]]:
+        %
+        %             % Get the regression parameter and intercept from the model's output.
+        %
+        %             % :param target: The target as a row of a dataframe
+        %             % :return: The regression parameter and intercept
+        %
+        %             if pd.isnull(target[obj.c.COLS.SR15]):
+        %                 return None, None
+        %             end
+        %
+        %             regression = obj.regression_model[
+        %                 (obj.regression_model[obj.c.COLS.VARIABLE] == target[obj.c.COLS.SR15]) &
+        %                 (obj.regression_model[obj.c.COLS.SLOPE] == obj.c.SLOPE_MAP[target[obj.c.COLS.TIME_FRAME]])]
+        %             if len(regression) == 0
+        %                 return None, None
+        %             elseif len(regression) > 1
+        %                 % There should never be more than one potential mapping
+        %                 raise ValueError("There is more than one potential regression parameter for this SR15 goal.")
+        %             else
+        %                 return regression.iloc[0][obj.c.COLS.PARAM], regression.iloc[0][obj.c.COLS.INTERCEPT]
+        %             end
+        %         end
         
         function [sc,rs] = get_score(obj, target)
             
@@ -144,7 +144,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :return: The temperature score
             
             if isnan(target.(obj.c.COLS.REGRESSION_PARAM)) || isnan(target.(obj.c.COLS.REGRESSION_INTERCEPT)) || ...
-                isnan(target.(obj.c.COLS.ANNUAL_REDUCTION_RATE))
+                    isnan(target.(obj.c.COLS.ANNUAL_REDUCTION_RATE))
                 sc = obj.fallback_score;
                 rs = 1;
                 return
@@ -181,13 +181,13 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 if s3.(obj.c.COLS.GHG_SCOPE3) / (s1s2.(obj.c.COLS.GHG_SCOPE12) + s3.(obj.c.COLS.GHG_SCOPE3)) < 0.4
                     sc = s1s2.(obj.c.COLS.TEMPERATURE_SCORE);
                     rs = s1s2.(obj.c.TEMPERATURE_RESULTS);
-                    return 
+                    return
                 else
                     company_emissions = s1s2.(obj.c.COLS.GHG_SCOPE12) + s3.(obj.c.COLS.GHG_SCOPE3);
                     sc = (s1s2.(obj.c.COLS.TEMPERATURE_SCORE) * s1s2.(obj.c.COLS.GHG_SCOPE12) + ...
-                    s3.(obj.c.COLS.TEMPERATURE_SCORE) * s3.(obj.c.COLS.GHG_SCOPE3)) / company_emissions;
+                        s3.(obj.c.COLS.TEMPERATURE_SCORE) * s3.(obj.c.COLS.GHG_SCOPE3)) / company_emissions;
                     rs = (s1s2.(obj.c.TEMPERATURE_RESULTS) * s1s2.(obj.c.COLS.GHG_SCOPE12) + ...
-                    s3.(obj.c.TEMPERATURE_RESULTS) * s3.(obj.c.COLS.GHG_SCOPE3)) / company_emissions;
+                        s3.(obj.c.TEMPERATURE_RESULTS) * s3.(obj.c.COLS.GHG_SCOPE3)) / company_emissions;
                     return
                 end
                 
@@ -195,23 +195,23 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 error("The mean of the S1+S2 plus the S3 emissions is zero")
             end
         end
-%         
-%         function value = get_functionault_score(obj, target: pd.Series) -> int:
-%             
-%             % Get the temperature score for a certain target based on the annual reduction rate and the regression parameters.
-%             
-%             % :param target: The target as a row of a dataframe
-%             % :return: The temperature score
-%             
-%             if pd.isnull(target[obj.c.COLS.REGRESSION_PARAM]) or pd.isnull(target[obj.c.COLS.REGRESSION_INTERCEPT]) \
-%                 or pd.isnull(target[obj.c.COLS.ANNUAL_REDUCTION_RATE])
-%                 value = 1;
-%             else
-%                 value = 0;
-%             end
-%         end
-%         
-        function data = calculate(obj, varargin)            
+        %
+        %         function value = get_functionault_score(obj, target: pd.Series) -> int:
+        %
+        %             % Get the temperature score for a certain target based on the annual reduction rate and the regression parameters.
+        %
+        %             % :param target: The target as a row of a dataframe
+        %             % :return: The temperature score
+        %
+        %             if pd.isnull(target[obj.c.COLS.REGRESSION_PARAM]) or pd.isnull(target[obj.c.COLS.REGRESSION_INTERCEPT]) \
+        %                 or pd.isnull(target[obj.c.COLS.ANNUAL_REDUCTION_RATE])
+        %                 value = 1;
+        %             else
+        %                 value = 0;
+        %             end
+        %         end
+        %
+        function data = calculate(obj, varargin)
             % Calculate the temperature for a table of company data. The columns in the table should be a combination
             % of IDataProviderTarget and IDataProviderCompany.
             
@@ -262,8 +262,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             for time_frame = obj.time_frames
                 score_aggregation_scopes = SBTi.interfaces.ScoreAggregationScopes();
                 for scope = obj.scopes
-                    score_aggregation_scopes.addprop(scope.name)
-                    score_aggregation_scopes.(scope.name) = obj.get_score_aggregation(data, time_frame, scope);
+                    score_aggregation_scopes.(strrep(scope, "+","")) = obj.get_score_aggregation(data, time_frame, scope);
                 end
                 score_aggregations.addprop(time_frame.value)
                 score_aggregations.(time_frame.value) = score_aggregation_scopes;
@@ -286,7 +285,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             if obj.scenario.scenario_type == SBTi.ScenarioType.APPROVED_TARGETS
                 score_based_on_target = ~ismissing(scores.(obj.c.COLS.TARGET_REFERENCE_NUMBER));
                 scores{score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE} = min(scores{score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE}, obj.scenario.get_score_cap);
-
+                
             elseif obj.scenario.scenario_type == SBTi.ScenarioType.HIGHEST_CONTRIBUTORS
                 % Cap scores of 10 highest contributors per time frame-scope combination
                 % TODO: Should this actually be per time-frame/scope combi? Aren't you engaging the company as a whole?
@@ -310,24 +309,24 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             elseif obj.scenario.scenario_type == SBTi.ScenarioType.HIGHEST_CONTRIBUTORS_APPROVED
                 score_based_on_target = scores.(obj.c.COLS.ENGAGEMENT_TARGET);
                 scores(score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE) = obj.scenario.get_score_cap( ...
-                scores(score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE) );
+                    scores(score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE) );
             end
         end
         
-%         function scores = anonymize_data_dump(obj, scores: pd.DataFrame) -> pd.DataFrame:
-%             
-%             % Anonymize the scores by deleting the company IDs, ISIN and renaming the companies.
-%             
-%             % :param scores: The data set with the temperature scores
-%             % :return: The input data frame, anonymized
-%             
-%             scores.drop(columns=[obj.c.COLS.COMPANY_ID, obj.c.COLS.COMPANY_ISIN], inplace=True)
-%             for index, company_name in enumerate(scores[obj.c.COLS.COMPANY_NAME].unique()):
-%                 scores.loc[scores[obj.c.COLS.COMPANY_NAME] == company_name, obj.c.COLS.COMPANY_NAME] = 'Company' + str(
-%                 index + 1)
-%             end
-%             
-%         end
+        %         function scores = anonymize_data_dump(obj, scores: pd.DataFrame) -> pd.DataFrame:
+        %
+        %             % Anonymize the scores by deleting the company IDs, ISIN and renaming the companies.
+        %
+        %             % :param scores: The data set with the temperature scores
+        %             % :return: The input data frame, anonymized
+        %
+        %             scores.drop(columns=[obj.c.COLS.COMPANY_ID, obj.c.COLS.COMPANY_ISIN], inplace=True)
+        %             for index, company_name in enumerate(scores[obj.c.COLS.COMPANY_NAME].unique()):
+        %                 scores.loc[scores[obj.c.COLS.COMPANY_NAME] == company_name, obj.c.COLS.COMPANY_NAME] = 'Company' + str(
+        %                 index + 1)
+        %             end
+        %
+        %         end
     end
     
     methods (Access = private)
@@ -375,7 +374,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             data{ismissing(data.(obj.c.COLS.TARGET_REFERENCE_NUMBER)), obj.c.COLS.TARGET_REFERENCE_NUMBER} = obj.c.VALUE_TARGET_REFERENCE_ABSOLUTE;
             
             sr15 = [];
-            for i = 1 : height(data)                
+            for i = 1 : height(data)
                 sr15 = [sr15; string(obj.get_target_mapping(data(i,:)))];
             end
             data.(obj.c.COLS.SR15) = sr15;
@@ -415,7 +414,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             
             company_data = groupsummary(company_data, [obj.c.COLS.COMPANY_ID, obj.c.COLS.TIME_FRAME, obj.c.COLS.SCOPE], 'mean');
             company_data.Properties.VariableNames = strrep(company_data.Properties.VariableNames,"mean_","");
-
+            
             for i = 1 : height(data)
                 [sc,rs] = obj.get_ghc_temperature_score(data(i,:), company_data);
                 data{i, obj.c.COLS.TEMPERATURE_SCORE} = sc;
@@ -424,72 +423,75 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             
         end
         
+        function [agg, rc, ac] = get_aggregations(obj, data, total_companies)
+            
+            % Get the aggregated score over a certain data set. Also calculate the (relative) contribution of each company
+            
+            % :param data: A data set, containing one row per company
+            % :return: An aggregated score and the relative and absolute contribution of each company
+            
+            weighted_scores = obj.calculate_aggregate_score(data, obj.c.COLS.TEMPERATURE_SCORE, obj.aggregation_method);
+            
+            data.(obj.c.COLS.CONTRIBUTION_RELATIVE) = weighted_scores / ( sum(weighted_scores) / 100);
+            data.(obj.c.COLS.CONTRIBUTION) = weighted_scores;
+            contributions = sortrows(data, obj.c.COLS.CONTRIBUTION_RELATIVE, 'descend');
+            
+            %             contributions = data\
+            %             .sort_values(obj.c.COLS.CONTRIBUTION_RELATIVE, ascending=False)\
+            %             .where(pd.notnull(data), None)\
+            %             .to_dict(orient="records")
+            
+            %             ctrb = [AggregationContribution.parse_obj(contribution) for contribution in contributions]
+            ctrb = SBTi.interfaces.AggregationContribution.parse_obj(contributions);
+            agg = SBTi.interfaces.Aggregation( sum(weighted_scores), ...
+                length(weighted_scores) / (total_companies / 100.0), ctrb);
+            rc = data.(obj.c.COLS.CONTRIBUTION_RELATIVE);
+            ac = data.(obj.c.COLS.CONTRIBUTION);
+            
+        end        
         
-%         
-%         function get_aggregations(obj, data: pd.DataFrame, total_companies: int) -> Tuple[Aggregation, pd.Series, pd.Series]:
-%             
-%             % Get the aggregated score over a certain data set. Also calculate the (relative) contribution of each company
-%             
-%             % :param data: A data set, containing one row per company
-%             % :return: An aggregated score and the relative and absolute contribution of each company
-%             
-%             data = data.copy()
-%             weighted_scores = obj.calculate_aggregate_score(data, obj.c.COLS.TEMPERATURE_SCORE,
-%             obj.aggregation_method)
-%             data[obj.c.COLS.CONTRIBUTION_RELATIVE] = weighted_scores / (weighted_scores.sum() / 100)
-%             data[obj.c.COLS.CONTRIBUTION] = weighted_scores
-%             contributions = data\
-%             .sort_values(obj.c.COLS.CONTRIBUTION_RELATIVE, ascending=False)\
-%             .where(pd.notnull(data), None)\
-%             .to_dict(orient="records")
-%             return Aggregation(
-%             score=weighted_scores.sum(),
-%             proportion=len(weighted_scores) / (total_companies / 100.0),
-%             contributions=[AggregationContribution.parse_obj(contribution) for contribution in contributions]
-%                 ), \
-%                 data[obj.c.COLS.CONTRIBUTION_RELATIVE], \
-%                 data[obj.c.COLS.CONTRIBUTION]
-%             end
-%         end
-%         function get_score_aggregation(obj, data: pd.DataFrame, time_frame: ETimeFrames, scope: EScope) -> \
-%             Optional[ScoreAggregation]:
-%             
-%             % Get a score aggregation for a certain time frame and scope, for the data set as a whole and for the different
-%             % groupings.
-%             
-%             % :param data: The whole data set
-%             % :param time_frame: A time frame
-%             % :param scope: A scope
-%             % :return: A score aggregation, containing the aggregations for the whole data set and each individual group
-%             
-%             filtered_data = data[(data[obj.c.COLS.TIME_FRAME] == time_frame) &
-%                 (data[obj.c.COLS.SCOPE] == scope)].copy()
-%             filtered_data[obj.grouping] = filtered_data[obj.grouping].fillna("unknown")
-%             total_companies = len(filtered_data)
-%             if not filtered_data.empty:
-%                 score_aggregation_all, \
-%                 filtered_data[obj.c.COLS.CONTRIBUTION_RELATIVE], \
-%                 filtered_data[obj.c.COLS.CONTRIBUTION] = obj.get_aggregations(filtered_data, total_companies)
-%                 score_aggregation = ScoreAggregation(
-%                 grouped={},
-%                 all=score_aggregation_all,
-%                 influence_percentage=obj.calculate_aggregate_score(
-%                 filtered_data, obj.c.TEMPERATURE_RESULTS, obj.aggregation_method).sum() * 100)
-%                 
-%                 % If there are grouping column(s) we'll group in pandas and pass the results to the aggregation
-%                 if len(obj.grouping) > 0:
-%                     grouped_data = filtered_data.groupby(obj.grouping)
-%                     for group_names, group in grouped_data:
-%                         group_name_joined = group_names if type(group_names) == str else "-".join([str(group_name) for group_name in group_names])
-%                                 score_aggregation.grouped[group_name_joined], _, _ = obj.get_aggregations(group.copy(), total_companies)
-%                             end
-%                         end
-%                     end
-%                 end
-%                 return score_aggregation
-%             else:
-%                 return None
-%             end
-%         end
+        function sca = get_score_aggregation(obj, data, time_frame, scope)
+            
+            % Get a score aggregation for a certain time frame and scope, for the data set as a whole and for the different
+            % groupings.
+            
+            % :param data: The whole data set
+            % :param time_frame: A time frame
+            % :param scope: A scope
+            % :return: A score aggregation, containing the aggregations for the whole data set and each individual group
+            
+            filtered_data = data( (data.(obj.c.COLS.TIME_FRAME) == time_frame) & (data.(obj.c.COLS.SCOPE) == scope), : );
+            
+            if ~isempty(obj.grouping)
+                filtered_data.(obj.grouping) = filtered_data.(obj.grouping).fillna("unknown");
+            end
+            
+            total_companies = height(filtered_data);
+            if ~isempty(filtered_data)
+                
+                [agg, rc, ab] = obj.get_aggregations(filtered_data, total_companies);
+                
+                score_aggregation_all = agg;
+                filtered_data.(obj.c.COLS.CONTRIBUTION_RELATIVE) = rc;
+                filtered_data.(obj.c.COLS.CONTRIBUTION) = ab;
+                
+                ip = obj.calculate_aggregate_score( filtered_data, obj.c.TEMPERATURE_RESULTS, sum(obj.aggregation_method) * 100);
+                score_aggregation = SBTi.interfaces.ScoreAggregation( struct(), score_aggregation_all, ip);
+                
+                % If there are grouping column(s) we'll group in pandas and pass the results to the aggregation
+                if ~isempty(obj.grouping)
+                    grouped_data = groupsummary(filtered_data, obj.grouping);
+                    %                     for group_names, group in grouped_data:
+                    %                         group_name_joined = group_names if type(group_names) == str else "-".join([str(group_name) for group_name in group_names])
+                    %                                 score_aggregation.grouped[group_name_joined], _, _ = obj.get_aggregations(group.copy(), total_companies)
+                    %                             end
+                    %                         end
+                    %                     end
+                end
+                sca = score_aggregation;
+            else
+                sca = SBTi.interfaces.ScoreAggregation.empty();
+            end
+        end
     end
 end

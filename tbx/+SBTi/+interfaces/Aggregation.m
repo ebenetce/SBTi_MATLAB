@@ -6,4 +6,12 @@ classdef Aggregation
         contributions (1,:) SBTi.interfaces.AggregationContribution
     end
     
+    methods
+        function obj = Aggregation(score, proportion, contributions)
+            obj.score = score;
+            obj.proportion = proportion;
+            obj.contributions = contributions;
+        end
+    end
+    
 end

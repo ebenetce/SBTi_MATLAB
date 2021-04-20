@@ -1,4 +1,4 @@
-classdef ScoreAggregationScopes < dynamicprops
+classdef ScoreAggregationScopes
     
     properties
         S1S2   (1,1) SBTi.interfaces.ScoreAggregation

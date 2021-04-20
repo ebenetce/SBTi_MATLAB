@@ -36,7 +36,7 @@ classdef PortfolioAggregation
             end
         end
         
-        function AggregatesScore = calculate_aggregate_score(obj, data, input_column, portfolio_aggregation_method)
+        function AggregatedScore = calculate_aggregate_score(obj, data, input_column, portfolio_aggregation_method)
             
             % Aggregate the scores in a given column based on a certain portfolio aggregation method.
             %
@@ -46,8 +46,11 @@ classdef PortfolioAggregation
             % :return: The aggregates score
             
             if portfolio_aggregation_method == SBTi.PortfolioAggregationMethod.WATS
-                total_investment_weight = sum(data(obj.c.COLS.INVESTMENT_VALUE));
+                total_investment_weight = sum(data.(obj.c.COLS.INVESTMENT_VALUE));
                 try
+                    fcn = @(x) x.(obj.c.COLS.INVESTMENT_VALUE).*x.(input_column)./total_investment_weight;
+                    AggregatedScore = fcn(data);
+                    return 
                     %                 return data.apply(
                     %                     lambda row: (row[obj.c.COLS.INVESTMENT_VALUE] * row[input_column]) / total_investment_weight,
                     %                     axis=1)
@@ -68,7 +71,7 @@ classdef PortfolioAggregation
                 % Calculate the total emissions of all companies
                 emissions = use_S1S2*sum(data.(obj.c.COLS.GHG_SCOPE12)) + use_S3*sum(data.(obj.c.COLS.GHG_SCOPE3));
                 try
-                    AggregatesScore = (use_S1S2*data.(obj.c.COLS.GHG_SCOPE12) + use_S3*data.(obj.c.COLS.GHG_SCOPE3)) / emissions * data.(input_column)
+                    AggregatesScore = (use_S1S2*data.(obj.c.COLS.GHG_SCOPE12) + use_S3*data.(obj.c.COLS.GHG_SCOPE3)) / emissions * data.(input_column);
                 catch
                     error( "SBTi:PortfolioAggregation:TotalEmissionsMustBeGreaterThanZero", "The total emissions should be higher than zero" )                    
                 end
