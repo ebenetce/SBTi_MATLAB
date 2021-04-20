@@ -195,22 +195,23 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 error("The mean of the S1+S2 plus the S3 emissions is zero")
             end
         end
-        %
-        %         function value = get_functionault_score(obj, target: pd.Series) -> int:
-        %
-        %             % Get the temperature score for a certain target based on the annual reduction rate and the regression parameters.
-        %
-        %             % :param target: The target as a row of a dataframe
-        %             % :return: The temperature score
-        %
-        %             if pd.isnull(target[obj.c.COLS.REGRESSION_PARAM]) or pd.isnull(target[obj.c.COLS.REGRESSION_INTERCEPT]) \
-        %                 or pd.isnull(target[obj.c.COLS.ANNUAL_REDUCTION_RATE])
-        %                 value = 1;
-        %             else
-        %                 value = 0;
-        %             end
-        %         end
-        %
+        
+        function value = get_functionault_score(obj, target)
+            
+            % Get the temperature score for a certain target based on the annual reduction rate and the regression parameters.
+            
+            % :param target: The target as a row of a dataframe
+            % :return: The temperature score
+            
+            if isnan(target.(obj.c.COLS.REGRESSION_PARAM)) || ...
+                    isnan(target.(obj.c.COLS.REGRESSION_INTERCEPT)) || ...
+                    isnan(target.(obj.c.COLS.ANNUAL_REDUCTION_RATE))
+                value = 1;
+            else
+                value = 0;
+            end
+        end
+        
         function data = calculate(obj, varargin)
             % Calculate the temperature for a table of company data. The columns in the table should be a combination
             % of IDataProviderTarget and IDataProviderCompany.

@@ -50,10 +50,7 @@ classdef PortfolioAggregation
                 try
                     fcn = @(x) x.(obj.c.COLS.INVESTMENT_VALUE).*x.(input_column)./total_investment_weight;
                     AggregatedScore = fcn(data);
-                    return 
-                    %                 return data.apply(
-                    %                     lambda row: (row[obj.c.COLS.INVESTMENT_VALUE] * row[input_column]) / total_investment_weight,
-                    %                     axis=1)
+                    return
                 catch
                     error( "SBTi:PortfolioAggregation:ZeroWeight", "The portfolio weight is not allowed to be zero" )
                 end
