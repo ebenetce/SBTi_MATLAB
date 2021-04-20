@@ -15,7 +15,7 @@ classdef IDataProviderTarget
         base_year_ghg_s3 (1,1) double
         start_year (1,1) int64
         end_year (1,1) int64
-        time_frame (1,1) string
+        time_frame (1,1) string = missing
         achieved_reduction (1,1) double = 0
     end
     

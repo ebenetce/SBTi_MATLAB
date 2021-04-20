@@ -123,18 +123,18 @@ classdef TargetProtocol < handle
                 ~isnan([targets.coverage_s2]);
             obj.s2_targets = targets(idx);
             
-            obj.s2_targets = targets( [targets.scope] == SBTi.interfaces.EScope.S2 & ...
-            ~isnan([targets.base_year_ghg_s2]) & ~isnan([targets.base_year_ghg_s2]) );
+            split123 = SBTi.interfaces.IDataProviderTarget.empty();
+            for i = 1 : height(targets)
+                split123 = [split123;obj.split_s1s2s3(targets(i,:))]; %#ok<AGROW>
+            end
 
-%         targets = list(filter(None, itertools.chain.from_iterable(map(obj._split_s1s2s3, targets))))
-
-            targets = arrayfun(@(x) obj.prepare_target(x), targets);
+            targets = arrayfun(@(x) obj.prepare_target(x), split123);
         end
     end
     
     methods (Access = private)
         
-        function [s1s2, s3] = split_s1s2s3(obj, target)
+        function s = split_s1s2s3(obj, target)
             
             % If there is a s1s2s3 scope, split it into two targets with s1s2 and s3
             
@@ -156,10 +156,10 @@ classdef TargetProtocol < handle
                 if ~isnan(target.coverage_s3)
                     s3 = target;
                     s3.scope = SBTi.interfaces.EScope.S3;                    
-                end              
+                end 
+                s = [s1s2;s3];
             else
-                s1s2 = target;
-                s3 = SBTi.interfaces.IDataProviderTarget.empty();
+                s = target;
             end
 
         end

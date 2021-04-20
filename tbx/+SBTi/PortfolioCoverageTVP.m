@@ -16,12 +16,12 @@ classdef PortfolioCoverageTVP < sbti.PortfolioAggregation
         end
         
         function score = get_portfolio_coverage(obj, company_data)
-            %             portfolio_aggregation_method: PortfolioAggregationMethod) -> Optional[float]:
-            %             Get the TVP portfolio coverage (i.e. what part of the portfolio has a SBTi validated target).
+            % portfolio_aggregation_method: PortfolioAggregationMethod) -> Optional[float]:
+            % Get the TVP portfolio coverage (i.e. what part of the portfolio has a SBTi validated target).
             %
-            %             :param company_data: The company as it is returned from the data provider's get_company_data call.
-            %             :param portfolio_aggregation_method: PortfolioAggregationMethod: The aggregation method to use
-            %             :return: The aggregated score
+            % :param company_data: The company as it is returned from the data provider's get_company_data call.
+            % :param portfolio_aggregation_method: PortfolioAggregationMethod: The aggregation method to use
+            % :return: The aggregated score
             
 %             company_data(obj.c.OUTPUT_TARGET_STATUS) = company_data.apply(
 %             lambda row: 100 if row[obj.c.COLS.SBTI_VALIDATED] else 0,

@@ -6,8 +6,8 @@ function portfolio_data = get_data(data_providers, portfolio)
 % :param portfolio: A list of PortfolioCompany models
 % :return: A data frame containing the relevant company-target data
 
-%     df_portfolio = pd.DataFrame.from_records([_flatten_user_fields(c) for c in portfolio])
-company_data = SBTi.utils.get_company_data(data_providers, [portfolio.company_id]);
+tb_portfolio = portfolio.toTable;
+company_data = SBTi.utils.get_company_data(data_providers, tb_portfolio.company_id);
 target_data = SBTi.utils.get_targets(data_providers, [portfolio.company_id]);
 if isempty(target_data)
     error("None targets found")
