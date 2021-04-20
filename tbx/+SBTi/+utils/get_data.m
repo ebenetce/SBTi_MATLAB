@@ -6,7 +6,7 @@ function portfolio_data = get_data(data_providers, portfolio)
 % :param portfolio: A list of PortfolioCompany models
 % :return: A data frame containing the relevant company-target data
 
-tb_portfolio = portfolio.toTable;
+tb_portfolio = SBTi.utils.flatten_user_fields(portfolio.toTable);
 company_data = SBTi.utils.get_company_data(data_providers, tb_portfolio.company_id);
 target_data = SBTi.utils.get_targets(data_providers, [portfolio.company_id]);
 if isempty(target_data)
@@ -21,7 +21,6 @@ company_data = sbti.get_sbti_targets(company_data, SBTi.utils.make_isin_map(port
 tp = SBTi.TargetProtocol();
 portfolio_data = tp.process(target_data, company_data);
 
-tb_portfolio = portfolio.toTable();
 tb_portfolio.company_name = [];
 portfolio_data = outerjoin(portfolio_data, tb_portfolio, ...
     "Type", "left", "Keys", "company_id","MergeKeys",true);

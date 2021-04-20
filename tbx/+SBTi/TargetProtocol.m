@@ -27,7 +27,7 @@ classdef TargetProtocol < handle
             
             % Create multiindex on company, timeframe and scope for performance later on
             targets = obj.prepare_targets(targets);
-            obj.target_data = targets.toTable();
+            obj.target_data = sortrows(targets.toTable(), [obj.c.COLS.COMPANY_ID, obj.c.COLS.TIME_FRAME, obj.c.COLS.SCOPE], ["ascend","descend","descend"]);
             
             % Create an indexed DF for performance purposes
             %         obj.target_data.index = obj.target_data.reset_index().set_index(
@@ -101,7 +101,7 @@ classdef TargetProtocol < handle
             B = lower(string(properties(SBTi.interfaces.ETimeFrames)));
             mb=size(string(properties(SBTi.interfaces.ETimeFrames)),1);
             mc=size(scopes,1);
-            [a,b,d]=ndgrid(1:ma,1:mb,1:mc);
+            [d,b,a]=ndgrid(1:mc,1:mb,1:ma);
             product = [companies(a,:),B(b,:), scopes(d,:)];
             extended_data = array2table([product, repmat(missing, height(product), length(empty_columns))], ...
                 'VariableNames',[grid_columns, empty_columns] );
@@ -294,7 +294,7 @@ classdef TargetProtocol < handle
                 obj.target_data.scope == row.(obj.c.COLS.SCOPE), :);
             if height(tgt_data) == 1
                 % One match with Target data
-                series = tgt_data.(target_columns);
+                series = tgt_data(:,target_columns);
             else
                 if tgt_data.scope(1) == SBTi.interfaces.EScope.S3
                     coverage_column = obj.c.COLS.COVERAGE_S3;
@@ -305,6 +305,8 @@ classdef TargetProtocol < handle
                 series = sortrows(tgt_data, ...
                     [coverage_column, obj.c.COLS.END_YEAR, obj.c.COLS.TARGET_REFERENCE_NUMBER], ...
                     {'descend','descend','ascend'});
+                
+                series = series(1,target_columns);
             end
         catch
             % No target found
