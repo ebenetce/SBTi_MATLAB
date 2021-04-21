@@ -329,31 +329,3 @@ classdef TargetProtocol < handle
     
     end
 end
-    
-        
-
-%     def process(obj, targets: List[IDataProviderTarget], companies: List[IDataProviderCompany]) -> pd.DataFrame:
-%         """
-        
-
-%     def validate(obj, target: IDataProviderTarget) -> bool:
-%         """
-        
-
-%     def _split_s1s2s3(obj, target: IDataProviderTarget) -> Tuple[IDataProviderTarget, Optional[IDataProviderTarget]]:
-       
-%     def _combine_s1_s2(obj, target: IDataProviderTarget):
-        
-
-%     def _convert_s1_s2(obj, target: IDataProviderTarget):
-        
-
-%     def _boundary_coverage(obj, target: IDataProviderTarget) -> IDataProviderTarget:
-%     def _time_frame(obj, target: IDataProviderTarget) -> IDataProviderTarget:
-
-%     def _prepare_target(obj, target: IDataProviderTarget):
-%     def prepare_targets(obj, targets: List[IDataProviderTarget]):
-
-%     def _find_target(obj, row: pd.Series, target_columns: List[str]) -> pd.Series:
-
-%     def group_targets(obj):
