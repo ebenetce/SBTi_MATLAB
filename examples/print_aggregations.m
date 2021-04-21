@@ -2,7 +2,9 @@ function print_aggregations(aggregations)
 %PRINT_AGGREGATIONS Summary of this function goes here
 %   Detailed explanation goes here
 
-% aggregations = aggregations.dict();
+arguments
+    aggregations SBTi.interfaces.ScoreAggregations
+end
 
 fprintf("%10s %10s %13s\n",'Timeframe', 'Scope', 'Temp score')
 for time_frame = string(properties(aggregations))'
