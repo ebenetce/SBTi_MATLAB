@@ -1,8 +1,8 @@
-classdef EngagementType
+classdef EngagementType < double
     % An engagement type defines how the companies will be engaged.
-    properties (Constant)
-        SET_TARGETS = 1
-        SET_SBTI_TARGETS = 2
+    enumeration
+        SET_TARGETS (1)
+        SET_SBTi_TARGETS (2)
     end
     
     methods (Static)
@@ -12,11 +12,11 @@ classdef EngagementType
             % :return: 
             switch value
                 case 0
-                    type = sbti.EngagementType.SET_TARGETS;
+                    type = SBTi.EngagementType.SET_TARGETS;
                 case 1
-                    type = sbti.EngagementType.SET_SBTI_TARGETS;
+                    type = SBTi.EngagementType.SET_SBTi_TARGETS;
                 otherwise 
-                    type = sbti.EngagementType.SET_TARGETS;
+                    type = SBTi.EngagementType.SET_TARGETS;
             end
         end
         
@@ -27,11 +27,11 @@ classdef EngagementType
             
             switch value
                 case 'SET_TARGETS'
-                    type = sbti.EngagementType.SET_TARGETS;
-                case 'SET_SBTI_TARGETS'
-                    type = sbti.EngagementType.SET_SBTI_TARGETS;
+                    type = SBTi.EngagementType.SET_TARGETS;
+                case 'SET_SBTi_TARGETS'
+                    type = SBTi.EngagementType.SET_SBTi_TARGETS;
                 otherwise 
-                    type = sbti.EngagementType.SET_TARGETS;
+                    type = SBTi.EngagementType.SET_TARGETS;
             end
         end
         
