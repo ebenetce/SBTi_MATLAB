@@ -31,7 +31,7 @@ classdef Scenario
     
     methods (Static)
         
-        function scenario = from_dict(scenario_values: dict) -> Optional['Scenario']:
+        function scenario = from_dict(scenario_values)
             
             % Convert a dictionary to a scenario. The dictionary should have the following keys:
             
