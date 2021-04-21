@@ -31,27 +31,37 @@ classdef Scenario
     
     methods (Static)
         
-%         function scenario = from_dict(scenario_values: dict) -> Optional['Scenario']:
-%             
-%             % Convert a dictionary to a scenario. The dictionary should have the following keys:
-%             
-%             % * number: The scenario type as an integer
-%             % * engagement_type: The engagement type as a string
-%             
-%             % :param scenario_values: The dictionary to convert
-%             % :return: A scenario object matching the input values or None, if no scenario could be matched
-%             
-%             scenario = sbti.Scenario();
-%             scenario.scenario_type = ScenarioType.from_int(scenario_values.get("number", -1));
-%             scenario.engagement_type = EngagementType.from_string(scenario_values.get("engagement_type", ""));
-%             
-%             if scenario.scenario_type is not None:
-%                 return scenario
-%             else
-%                 return None
-%             end
-%         end
-%         
+        function scenario = from_dict(scenario_values: dict) -> Optional['Scenario']:
+            
+            % Convert a dictionary to a scenario. The dictionary should have the following keys:
+            
+            % * number: The scenario type as an integer
+            % * engagement_type: The engagement type as a string
+            
+            % :param scenario_values: The dictionary to convert
+            % :return: A scenario object matching the input values or None, if no scenario could be matched
+            
+            scenario = SBTi.Scenario;
+            try
+                val = scenario_values.number;
+            catch
+                val = -1;
+            end
+            
+            try
+                str = scenario_values.engagement_type;
+            catch
+                str = "";
+            end
+            scenario.scenario_type = SBTi.ScenarioType.from_int(val);
+            scenario.engagement_type = SBTi.EngagementType.from_string(str);
+            
+            if isempty(scenario.scenario_type)
+                scenario = SBTi.Scenario.empty();
+            end
+            
+        end
+        
         function scenario = from_interface(scenario_values)
             
             % Convert a scenario interface to a scenario.
@@ -64,15 +74,14 @@ classdef Scenario
                 return
             end
             
-            scenario = SBTi.Scenario.empty();
-            scenario.scenario_type   = SBTi.ScenarioType(scenario_values.number);
-            scenario.engagement_type = SBTi.EngagementType.from_string(scenario_values.engagement_type);
+            scenario = SBTi.Scenario;
+            scenario.scenario_type   = SBTi.ScenarioType.from_int( double(scenario_values) );
+            scenario.engagement_type = SBTi.EngagementType.from_string( string(scenario_values) );
             
             if isempty(scenario.scenario_type)
                 scenario = SBTi.Scenario.empty();
             end
         end
-        
     end
     
 end
