@@ -5,7 +5,7 @@ classdef SBTi
         targets
     end
     
-    methods 
+    methods
         function obj = SBTi(config)
             if nargin == 1
                 obj.c = config;
@@ -33,29 +33,7 @@ classdef SBTi
                 end
                 
             end
-
+            
         end
     end
 end
-% from typing import List, Type
-% 
-% import pandas as pd
-% 
-% from SBTi.configs import PortfolioCoverageTVPConfig
-% from SBTi.interfaces import IDataProviderCompany
-% 
-% 
-% class SBTi:
-%     """
-%     %     """
-% 
-%     def __init__(self, config: Type[PortfolioCoverageTVPConfig] = PortfolioCoverageTVPConfig):
-%         self.c = config
-%         self.targets = pd.read_excel(self.c.FILE_TARGETS)
-% 
-%     def get_sbti_targets(self, companies: List[IDataProviderCompany], isin_map: dict) -> List[IDataProviderCompany]:
-%         """
-
-%         """
-%          
-%         return companies
