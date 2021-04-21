@@ -2,8 +2,8 @@ classdef Scenario
     
     % A scenario functionines the action the portfolio holder will take to improve its temperature score.
     properties
-        scenario_type (1,1) sbti.ScenarioType
-        engagement_type (1,1) sbti.EngagementType
+        scenario_type (:,1) SBTi.ScenarioType = SBTi.ScenarioType.empty()
+        engagement_type (:,1) SBTi.EngagementType = SBTi.EngagementType.empty()
     end
     
     methods
@@ -52,27 +52,27 @@ classdef Scenario
 %             end
 %         end
 %         
-%         function from_interface(scenario_values: Optional[ScenarioInterface]) -> Optional['Scenario']:
-%             
-%             % Convert a scenario interface to a scenario.
-%             
-%             % :param scenario_values: The interface model instance to convert
-%             % :return: A scenario object matching the input values or None, if no scenario could be matched
-%             
-%             if scenario_values is None:
-%                 return None
-%             end
-%             scenario = Scenario();
-%             scenario.scenario_type = ScenarioType.from_int(scenario_values.number);
-%             scenario.engagement_type = EngagementType.from_string(scenario_values.engagement_type);
-%             
-%             if scenario.scenario_type is not None:
-%                 return scenario
-%             else
-%                 return None
-%             end
-%         end
-%         
+        function scenario = from_interface(scenario_values)
+            
+            % Convert a scenario interface to a scenario.
+            
+            % :param scenario_values: The interface model instance to convert
+            % :return: A scenario object matching the input values or None, if no scenario could be matched
+            
+            if nargin < 1 || isempty(scenario_values)
+                scenario = SBTi.Scenario.empty();
+                return
+            end
+            
+            scenario = SBTi.Scenario.empty();
+            scenario.scenario_type   = SBTi.ScenarioType(scenario_values.number);
+            scenario.engagement_type = SBTi.EngagementType.from_string(scenario_values.engagement_type);
+            
+            if isempty(scenario.scenario_type)
+                scenario = SBTi.Scenario.empty();
+            end
+        end
+        
     end
     
 end
