@@ -1,4 +1,4 @@
-classdef PortfolioCoverageTVP < sbti.PortfolioAggregation
+classdef PortfolioCoverageTVP < SBTi.PortfolioAggregation
     % Lookup the companies in the given portfolio and determine whether they have a SBTi approved target.
     % 
     % :param config: A class defining the constants that are used throughout this class. This parameter is only required
@@ -11,7 +11,7 @@ classdef PortfolioCoverageTVP < sbti.PortfolioAggregation
     methods
         
         function obj = PortfolioCoverageTVP(config)
-            obj = obj@sbti.PortfolioAggregation(config);            
+            obj = obj@SBTi.PortfolioAggregation(config);            
             obj.c = config;
         end
         
@@ -23,13 +23,14 @@ classdef PortfolioCoverageTVP < sbti.PortfolioAggregation
             % :param portfolio_aggregation_method: PortfolioAggregationMethod: The aggregation method to use
             % :return: The aggregated score
             
-%             company_data(obj.c.OUTPUT_TARGET_STATUS) = company_data.apply(
-%             lambda row: 100 if row[obj.c.COLS.SBTI_VALIDATED] else 0,
-%             axis=1
-%             )
+            idx = data.(obj.c.COLS.SBTI_VALIDATED);            
+            company_data(idx, obj.c.OUTPUT_TARGET_STATUS) = 100;
+
+            score = sum( obj.calculate_aggregate_score( ...
+                company_data, ...
+                obj.c.OUTPUT_TARGET_STATUS, ...
+                portfolio_aggregation_method) );
             
-%             return obj._calculate_aggregate_score(company_data, obj.c.OUTPUT_TARGET_STATUS,
-%             portfolio_aggregation_method).sum()
         end
     end
 end
