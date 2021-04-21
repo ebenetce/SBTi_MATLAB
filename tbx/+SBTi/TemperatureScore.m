@@ -54,7 +54,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             obj.aggregation_method = r.aggregation_method;
             
             if ~isempty(r.grouping)
-                obj.grouping = grouping;
+                obj.grouping = r.grouping;
             end
             % Load the mappings from industry to SR15 goal
             obj.mapping = readtable(obj.c.FILE_SR15_MAPPING);
