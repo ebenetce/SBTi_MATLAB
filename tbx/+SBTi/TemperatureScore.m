@@ -265,8 +265,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 for scope = obj.scopes
                     score_aggregation_scopes.(strrep(scope, "+","")) = obj.get_score_aggregation(data, time_frame, scope);
                 end
-                score_aggregations.addprop(time_frame.value)
-                score_aggregations.(time_frame.value) = score_aggregation_scopes;
+                score_aggregations.(time_frame) = score_aggregation_scopes;
             end
             
         end
@@ -451,7 +450,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             
         end        
         
-        function sca = get_score_aggregation(obj, data, time_frame, scope)
+        function score_aggregation = get_score_aggregation(obj, data, time_frame, scope)
             
             % Get a score aggregation for a certain time frame and scope, for the data set as a whole and for the different
             % groupings.
@@ -476,8 +475,8 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 filtered_data.(obj.c.COLS.CONTRIBUTION_RELATIVE) = rc;
                 filtered_data.(obj.c.COLS.CONTRIBUTION) = ab;
                 
-                ip = obj.calculate_aggregate_score( filtered_data, obj.c.TEMPERATURE_RESULTS, sum(obj.aggregation_method) * 100);
-                score_aggregation = SBTi.interfaces.ScoreAggregation( struct(), score_aggregation_all, ip);
+                ip =  obj.calculate_aggregate_score( filtered_data, obj.c.TEMPERATURE_RESULTS, obj.aggregation_method);
+                score_aggregation = SBTi.interfaces.ScoreAggregation( struct(), score_aggregation_all, 100*sum( ip ) );
                 
                 % If there are grouping column(s) we'll group in pandas and pass the results to the aggregation
                 if ~isempty(obj.grouping)
@@ -489,9 +488,8 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                     %                         end
                     %                     end
                 end
-                sca = score_aggregation;
             else
-                sca = SBTi.interfaces.ScoreAggregation.empty();
+                score_aggregation = SBTi.interfaces.ScoreAggregation.empty();
             end
         end
     end

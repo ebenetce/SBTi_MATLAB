@@ -1,7 +1,7 @@
 classdef ScoreAggregation
     
     properties
-        all (1,1) SBTi.interfaces.Aggregation
+        all SBTi.interfaces.Aggregation = SBTi.interfaces.Aggregation.empty()
         influence_percentage (1,1) double
         grouped (1,1) struct
     end
