@@ -4,13 +4,15 @@ classdef PortfolioCoverageTVP < SBTi.PortfolioAggregation
     % :param config: A class defining the constants that are used throughout this class. This parameter is only required
     %                if you'd like to overwrite a constant. This can be done by extending the PortfolioCoverageTVPConfig
     %                class and overwriting one of the parameters.
-    properties
-        c
-    end
     
     methods
         
         function obj = PortfolioCoverageTVP(config)
+            
+            arguments
+                config (1,1) SBTi.configs.PortfolioCoverageTVPConfig = SBTi.configs.PortfolioCoverageTVPConfig
+            end
+            
             obj = obj@SBTi.PortfolioAggregation(config);            
             obj.c = config;
         end
