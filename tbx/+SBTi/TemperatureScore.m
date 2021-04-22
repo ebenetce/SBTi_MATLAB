@@ -463,7 +463,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             filtered_data = data( (data.(obj.c.COLS.TIME_FRAME) == time_frame) & (data.(obj.c.COLS.SCOPE) == scope), : );
             
             if ~isempty(obj.grouping)
-                filtered_data.(obj.grouping) = filtered_data.(obj.grouping).fillna("unknown");
+                filtered_data(:,obj.grouping) = fillmissing(filtered_data(:,obj.grouping),'constant',"unknown");
             end
             
             total_companies = height(filtered_data);
@@ -476,18 +476,21 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 filtered_data.(obj.c.COLS.CONTRIBUTION) = ab;
                 
                 ip =  obj.calculate_aggregate_score( filtered_data, obj.c.TEMPERATURE_RESULTS, obj.aggregation_method);
-                score_aggregation = SBTi.interfaces.ScoreAggregation( struct(), score_aggregation_all, 100*sum( ip ) );
+                score_aggregation = SBTi.interfaces.ScoreAggregation( containers.Map, score_aggregation_all, 100*sum( ip ) );
                 
                 % If there are grouping column(s) we'll group in pandas and pass the results to the aggregation
                 if ~isempty(obj.grouping)
-                    grouped_data = groupsummary(filtered_data, obj.grouping);
-                    %                     for group_names, group in grouped_data:
-                    %                         group_name_joined = group_names if type(group_names) == str else "-".join([str(group_name) for group_name in group_names])
-                    %                                 score_aggregation.grouped[group_name_joined], _, _ = obj.get_aggregations(group.copy(), total_companies)
-                    %                             end
-                    %                         end
-                    %                     end
+                    
+                    [groups,grouped_data] = findgroups(filtered_data(:,obj.grouping));
+                    
+                    for k = 1 : height(grouped_data)
+                        group_name_joined = strjoin(grouped_data{k,:},'-');
+                        [agg,~,~] = obj.get_aggregations(filtered_data(groups == k,:), total_companies);
+                        score_aggregation.grouped(group_name_joined) = agg;
+                    end
+
                 end
+                
             else
                 score_aggregation = SBTi.interfaces.ScoreAggregation.empty();
             end

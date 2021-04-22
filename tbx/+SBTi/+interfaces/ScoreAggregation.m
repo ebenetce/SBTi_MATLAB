@@ -3,7 +3,7 @@ classdef ScoreAggregation
     properties
         all SBTi.interfaces.Aggregation = SBTi.interfaces.Aggregation.empty()
         influence_percentage (1,1) double
-        grouped (1,1) struct
+        grouped containers.Map
     end
     
     methods
@@ -11,7 +11,12 @@ classdef ScoreAggregation
             
             obj.all = all;
             obj.influence_percentage = influence_percentage;
-            obj.grouped = grouped;
+            
+            if grouped.Count == 0
+                obj.grouped = containers.Map;
+            else
+                obj.grouped = grouped;
+            end
             
         end
     end
