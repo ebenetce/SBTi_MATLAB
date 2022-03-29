@@ -60,11 +60,11 @@ classdef PortfolioAggregation
                 % Total emissions weighted temperature score (TETS)
             elseif portfolio_aggregation_method == SBTi.PortfolioAggregationMethod.TETS
                 use_S1S2 = (data.(obj.c.COLS.SCOPE) == EScope.S1S2) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
-                use_S3 = (data(obj.c.COLS.SCOPE) == EScope.S3) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
-                if use_S3.any()
+                use_S3 = (data.(obj.c.COLS.SCOPE) == EScope.S3) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
+                if any(use_S3)
                     obj.check_column(data, obj.c.COLS.GHG_SCOPE3)
                 end
-                if use_S1S2.any()
+                if any(use_S1S2)
                     obj.check_column(data, obj.c.COLS.GHG_SCOPE12)
                 end
                 % Calculate the total emissions of all companies
@@ -77,7 +77,7 @@ classdef PortfolioAggregation
                 
             elseif SBTi.PortfolioAggregationMethod.is_emissions_based(portfolio_aggregation_method)
                 % These four methods only differ in the way the company is valued.
-                if portfolio_aggregation_method == PortfolioAggregationMethod.ECOTS
+                if portfolio_aggregation_method == SBTi.PortfolioAggregationMethod.ECOTS
                     obj.check_column(data, obj.c.COLS.COMPANY_ENTERPRISE_VALUE)
                     obj.check_column(data, obj.c.COLS.CASH_EQUIVALENTS)
                     data.(obj.c.COLS.COMPANY_EV_PLUS_CASH) = data.(obj.c.COLS.COMPANY_ENTERPRISE_VALUE) + data.(obj.c.COLS.CASH_EQUIVALENTS);
@@ -91,10 +91,10 @@ classdef PortfolioAggregation
                     obj.check_column(data, value_column)
                     use_S1S2 = (data.(obj.c.COLS.SCOPE) == EScope.S1S2) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
                     use_S3 = (data.(obj.c.COLS.SCOPE) == EScope.S3) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
-                    if use_S1S2.any()
+                    if any(use_S1S2)
                         obj.check_column(data, obj.c.COLS.GHG_SCOPE12)
                     end
-                    if use_S3.any()
+                    if any(use_S3)
                         obj.check_column(data, obj.c.COLS.GHG_SCOPE3)
                     end
                     data.(obj.c.COLS.OWNED_EMISSIONS) = (data.(obj.c.COLS.INVESTMENT_VALUE) / data.(value_column)) * (use_S1S2*data.(obj.c.COLS.GHG_SCOPE12) + use_S3*data.(obj.c.COLS.GHG_SCOPE3));
