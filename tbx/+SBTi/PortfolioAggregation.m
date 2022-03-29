@@ -75,7 +75,7 @@ classdef PortfolioAggregation
                     error( "SBTi:PortfolioAggregation:TotalEmissionsMustBeGreaterThanZero", "The total emissions should be higher than zero" )
                 end
                 
-            elseif PortfolioAggregationMethod.is_emissions_based(portfolio_aggregation_method)
+            elseif SBTi.PortfolioAggregationMethod.is_emissions_based(portfolio_aggregation_method)
                 % These four methods only differ in the way the company is valued.
                 if portfolio_aggregation_method == PortfolioAggregationMethod.ECOTS
                     obj.check_column(data, obj.c.COLS.COMPANY_ENTERPRISE_VALUE)
