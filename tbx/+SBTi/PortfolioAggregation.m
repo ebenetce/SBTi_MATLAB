@@ -70,7 +70,7 @@ classdef PortfolioAggregation
                 % Calculate the total emissions of all companies
                 emissions = use_S1S2*sum(data.(obj.c.COLS.GHG_SCOPE12)) + use_S3*sum(data.(obj.c.COLS.GHG_SCOPE3));
                 try
-                    AggregatedScore = (use_S1S2*data.(obj.c.COLS.GHG_SCOPE12) + use_S3*data.(obj.c.COLS.GHG_SCOPE3)) / emissions * data.(input_column);
+                    AggregatedScore = (use_S1S2.*data.(obj.c.COLS.GHG_SCOPE12) + use_S3.*data.(obj.c.COLS.GHG_SCOPE3)) ./ emissions .* data.(input_column);
                 catch
                     error( "SBTi:PortfolioAggregation:TotalEmissionsMustBeGreaterThanZero", "The total emissions should be higher than zero" )
                 end
@@ -97,7 +97,7 @@ classdef PortfolioAggregation
                     if any(use_S3)
                         obj.check_column(data, obj.c.COLS.GHG_SCOPE3)
                     end
-                    data.(obj.c.COLS.OWNED_EMISSIONS) = (data.(obj.c.COLS.INVESTMENT_VALUE) / data.(value_column)) * (use_S1S2*data.(obj.c.COLS.GHG_SCOPE12) + use_S3*data.(obj.c.COLS.GHG_SCOPE3));
+                    data.(obj.c.COLS.OWNED_EMISSIONS) = (data.(obj.c.COLS.INVESTMENT_VALUE) ./ data.(value_column)) .* (use_S1S2.*data.(obj.c.COLS.GHG_SCOPE12) + use_S3.*data.(obj.c.COLS.GHG_SCOPE3));
                 catch
                     error( "SBTi:PortfolioAggregation:ColumnIsZero", "To calculate the aggregation, the %s column may not be zero", value_column)
                 end
