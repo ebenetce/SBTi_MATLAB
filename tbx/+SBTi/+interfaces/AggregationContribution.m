@@ -7,6 +7,13 @@ classdef AggregationContribution
         contribution_relative (1,1) double
         contribution (1,1) double
     end
+
+    methods
+        function tb = table(obj)
+            tb = table([obj.company_name]', [obj.company_id]', [obj.temperature_score]', [obj.contribution_relative]', [obj.contribution]', ...
+                'VariableNames',properties(obj));
+        end
+    end
         
     methods (Static)
         function obj = parse_obj(contributions)

@@ -9,9 +9,9 @@ classdef Scenario
     methods
         
         function value = get_score_cap(obj)
-            if obj.engagement_type == EngagementType.SET_TARGETS
+            if obj.engagement_type == SBTi.EngagementType.SET_TARGETS
                 value = 2;
-            elseif obj.scenario_type == ScenarioType.APPROVED_TARGETS || obj.engagement_type == EngagementType.SET_SBTI_TARGETS
+            elseif obj.scenario_type == SBTi.ScenarioType.APPROVED_TARGETS || obj.engagement_type == SBTi.EngagementType.SET_SBTI_TARGETS
                 value = 1.75;
             else
                 value = NaN;
@@ -20,7 +20,7 @@ classdef Scenario
         
         function value = get_fallback_score(obj, fallback_score)
             
-            if obj.scenario_type == sbti.ScenarioType.TARGETS
+            if obj.scenario_type == SBTi.ScenarioType.TARGETS
                 value = 2.0;
             else
                 value = fallback_score;

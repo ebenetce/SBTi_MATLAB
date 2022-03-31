@@ -15,7 +15,6 @@ end
 
 % Supplement the company data with the SBTi target status
 sbti = SBTi.data.SBTi;
-disp(company_data)
 company_data = sbti.get_sbti_targets(company_data, SBTi.utils.make_isin_map(portfolio));
 
 % Prepare the data

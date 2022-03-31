@@ -308,9 +308,9 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 end
             elseif obj.scenario.scenario_type == SBTi.ScenarioType.HIGHEST_CONTRIBUTORS_APPROVED
                 score_based_on_target = scores.(obj.c.COLS.ENGAGEMENT_TARGET);
-                scores(score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE) = obj.scenario.get_score_cap( ...
-                    scores(score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE) );
+                scores{score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE} = min(scores{score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE}, obj.scenario.get_score_cap());
             end
+            
         end
         
         %         function scores = anonymize_data_dump(obj, scores: pd.DataFrame) -> pd.DataFrame:
