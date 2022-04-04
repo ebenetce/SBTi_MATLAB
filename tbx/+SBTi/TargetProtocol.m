@@ -121,12 +121,15 @@ classdef TargetProtocol < handle
             
             target_columns = extended_data.Properties.VariableNames;
             
-            obj.data = table.empty();
+            obj.data = extended_data;
+            isTarget = ismember(extended_data(:, [obj.c.COLS.COMPANY_ID, obj.c.COLS.TIME_FRAME, obj.c.COLS.SCOPE]), obj.target_data(:,["company_id", "time_frame", "scope"]));
             func = @(x) obj.find_target(x, target_columns);
             for i = 1 : height(extended_data)
-                obj.data = [obj.data; func(extended_data(i,:))];
+                if isTarget(i) == 1
+                    obj.data(i, :) = func(extended_data(i,:));
+                end
             end
-            
+
         end
         
         function targets = prepare_targets(obj, targets)
@@ -157,15 +160,21 @@ classdef TargetProtocol < handle
             if target.scope == SBTi.interfaces.EScope.S1S2S3
                 s1s2 = target;
                 s3 = SBTi.interfaces.IDataProviderTarget.empty();
-                if (~isnan(target.base_year_ghg_s1) && ~ isnan(target.base_year_ghg_s1)) || (target.coverage_s1 == target.coverage_s2)
+                if (~isnan(target.base_year_ghg_s1)) || (target.coverage_s1 == target.coverage_s2)
                     s1s2.scope = SBTi.interfaces.EScope.S1S2;
-                    coverage_percentage = (s1s2.coverage_s1 * s1s2.base_year_ghg_s1 + ...
-                                           s1s2.coverage_s2 * s1s2.base_year_ghg_s2) / ...
-                                          (s1s2.base_year_ghg_s1 + s1s2.base_year_ghg_s2);
-                    s1s2.coverage_s1 = coverage_percentage;
-                    s1s2.coverage_s2 = coverage_percentage;                    
+
+                    if ~isnan(target.base_year_ghg_s1) && ~isnan(target.base_year_ghg_s2) && (target.base_year_ghg_s1 + target.base_year_ghg_s2 ~= 0)
+
+                        coverage_percentage = (s1s2.coverage_s1 * s1s2.base_year_ghg_s1 + ...
+                            s1s2.coverage_s2 * s1s2.base_year_ghg_s2) / ...
+                            (s1s2.base_year_ghg_s1 + s1s2.base_year_ghg_s2);
+                        s1s2.coverage_s1 = coverage_percentage;
+                        s1s2.coverage_s2 = coverage_percentage;
+
+                    end
+
                 end
-                
+
                 if ~isnan(target.coverage_s3)
                     s3 = target;
                     s3.scope = SBTi.interfaces.EScope.S3;                    
@@ -299,32 +308,37 @@ classdef TargetProtocol < handle
         %  :param target_columns: The columns that need to be returned
         %  :return: returns records from the input data, which contains company and target information, that meet specific criteria. For example, record of greatest emissions_in_scope
 
-
+        cols = obj.c.COLS;
         % Find all targets that correspond to the given row
-        try
-            tgt_data = obj.target_data( obj.target_data.company_id == row.(obj.c.COLS.COMPANY_ID) &  ...
-                obj.target_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & ...
-                obj.target_data.scope == row.(obj.c.COLS.SCOPE), :);
-            if height(tgt_data) == 1
-                % One match with Target data
-                series = tgt_data(:,target_columns);
-            else
-                if tgt_data.scope(1) == SBTi.interfaces.EScope.S3
-                    coverage_column = obj.c.COLS.COVERAGE_S3;
-                else
-                    coverage_column = obj.c.COLS.COVERAGE_S1;
-                end
-                % In case more than one target is available; we prefer targets with higher coverage, later end year, and target type 'absolute'
-                series = sortrows(tgt_data, ...
-                    [coverage_column, obj.c.COLS.END_YEAR, obj.c.COLS.TARGET_REFERENCE_NUMBER], ...
-                    {'descend','descend','ascend'});
-                
-                series = series(1,target_columns);
-            end
-        catch
+        
+        tgt_data = obj.target_data( obj.target_data.company_id == row.(cols.COMPANY_ID) &  ...
+            obj.target_data.time_frame == row.(cols.TIME_FRAME) & ...
+            obj.target_data.scope == row.(cols.SCOPE), :);
+        if isempty(tgt_data)
             % No target found
             series = row;
+        elseif height(tgt_data) == 1
+            % One match with Target data
+            series = tgt_data(:,target_columns);
+        else
+            if tgt_data.scope(1) == SBTi.interfaces.EScope.S3
+                coverage_column = cols.COVERAGE_S3;
+            else
+                coverage_column = cols.COVERAGE_S1;
+            end
+            % In case more than one target is available; we prefer targets with higher coverage, later end year, and target type 'absolute'
+            series = sortrows(tgt_data, ...
+                [coverage_column, cols.END_YEAR, cols.TARGET_REFERENCE_NUMBER], ...
+                {'descend','descend','ascend'});
+
+            series = series(1,target_columns);
         end
+        
+        %         try
+%         catch
+%             % No target found
+%             series = row;
+%         end
     end
     
     end
