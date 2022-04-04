@@ -293,15 +293,20 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 for time_frame = obj.time_frames
                     
                     for scope = obj.scopes
-                        
+                        sc = strrep(scope, "+", "");
                         number_top_contributors = min(10, ...
-                            length(aggregations.(time_frame.value)(scope.name).all.contributions));
+                            length(aggregations.(time_frame).(sc).all.contributions));
                         
                         for contributor = 1 : number_top_contributors
                             
-                            company_name = aggregations; %.(time_frame.value)(scope.name).all.contributions(contributor)(obj.c.COLS.COMPANY_NAME);
+                            company_name = aggregations.(time_frame).(sc).all.contributions(contributor);
+                            company_name = company_name.(obj.c.COLS.COMPANY_NAME);
                             company_mask = (scores.(obj.c.COLS.COMPANY_NAME) == company_name) & (scores.(obj.c.COLS.SCOPE) == scope) & (scores.(obj.c.COLS.TIME_FRAME) == time_frame);
-                            scores{company_mask, obj.c.COLS.TEMPERATURE_SCORE} = obj.scenario.get_score_cap( scores(company_mask, obj.c.COLS.TEMPERATURE_SCORE) );
+
+                            
+
+                            scores{company_mask, obj.c.COLS.TEMPERATURE_SCORE} = ...
+                                min(scores{company_mask, obj.c.COLS.TEMPERATURE_SCORE}, obj.scenario.get_score_cap());
                             
                         end
                     end
