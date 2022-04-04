@@ -2,7 +2,7 @@ classdef EngagementType < double
     % An engagement type defines how the companies will be engaged.
     enumeration
         SET_TARGETS (1)
-        SET_SBTi_TARGETS (2)
+        SET_SBTI_TARGETS (2)
     end
     
     methods (Static)
