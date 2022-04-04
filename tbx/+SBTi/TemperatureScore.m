@@ -176,6 +176,14 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             s1s2 = company_data(company_data.company_id == row.(obj.c.COLS.COMPANY_ID) & company_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & company_data.scope == SBTi.interfaces.EScope.S1S2,:);
             s3   = company_data(company_data.company_id == row.(obj.c.COLS.COMPANY_ID) & company_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & company_data.scope == SBTi.interfaces.EScope.S3,:);
 
+            % return default score if ghg scope12 or 3 is empty
+            if isempty(row.(obj.c.COLS.GHG_SCOPE12)) ||  isempty(row.(obj.c.COLS.GHG_SCOPE3))
+                conf = SBTi.configs.TemperatureScoreConfig;
+                sc = conf.FALLBACK_SCORE;
+                rs = conf.FALLBACK_SCORE;
+                return
+            end
+
             try
                 % If the s3 emissions are less than 40 percent, we'll ignore them altogether, if not, we'll weigh them
                 if s3.(obj.c.COLS.GHG_SCOPE3) / (s1s2.(obj.c.COLS.GHG_SCOPE12) + s3.(obj.c.COLS.GHG_SCOPE3)) < 0.4
@@ -241,8 +249,6 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             data = obj.prepare_data(data);
 
             if ismember(SBTi.interfaces.EScope.S1S2S3, obj.scopes)
-                obj.check_column(data, obj.c.COLS.GHG_SCOPE12)
-                obj.check_column(data, obj.c.COLS.GHG_SCOPE3)
                 data = obj.calculate_company_score(data);
             end
             % We need to filter the scopes again, because we might have had to add a scope in te preparation step

@@ -31,10 +31,23 @@ classdef PortfolioAggregation
             % :return:
             missing_data = ismissing(data.(column));
             missing_data = unique(obj.c.COLS.COMPANY_NAME(missing_data));
-            
+
             if ~isempty(missing_data)
-                error("SBTi:PortfolioAggregation:MissingCompanies", "The value for %s is missing for the following companies: %s ", column, strjoin(missing_companies, ',') );
+
+                if column == obj.c.COLS.GHG_SCOPE12 || column == obj.c.COLS.GHG_SCOPE3
+                    error("SBTi:PortfolioAggregation:MissingCompanies", ...
+                        "A value for %s is needed for all aggregation methods except for TETS. \nSo please try to estimate appropriate values or remove these companies from the aggregation calculation: %s", ...
+                        column, strjoin(missing_data, ',') );
+                else
+
+                    error("SBTi:PortfolioAggregation:MissingCompanies", ...
+                        "The value for %s is missing for the following companies: %s ", ...
+                        column, strjoin(missing_companies, ',') );
+
+                end
+
             end
+
         end
         
         function AggregatedScore = calculate_aggregate_score(obj, data, input_column, portfolio_aggregation_method)

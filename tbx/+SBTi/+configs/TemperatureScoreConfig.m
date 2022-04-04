@@ -5,6 +5,7 @@ classdef TemperatureScoreConfig < SBTi.configs.PortfolioAggregationConfig
     
     properties
         SBTi_FACTOR = 1
+        FALLBACK_SCORE (1,1) double = 3.2
         FILE_SR15_MAPPING = fullfile( extractBefore(mfilename('fullpath'), 'TemperatureScoreConfig'), "inputs", "sr15_mapping.xlsx")
         FILE_REGRESSION_MODEL_SUMMARY = fullfile( extractBefore(mfilename('fullpath'), 'TemperatureScoreConfig'), "inputs", "regression_model_summary.xlsx")
         
