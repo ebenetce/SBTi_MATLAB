@@ -377,15 +377,15 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             data = data(ismember(data.(obj.c.COLS.SCOPE), sc) & ismember(data.(obj.c.COLS.TIME_FRAME), obj.time_frames),:);
             data{ismissing(data.(obj.c.COLS.TARGET_REFERENCE_NUMBER)), obj.c.COLS.TARGET_REFERENCE_NUMBER} = obj.c.VALUE_TARGET_REFERENCE_ABSOLUTE;
 
-            sr15 = [];
+            sr15 = strings(height(data), 1);
             for i = 1 : height(data)
-                sr15 = [sr15; string(obj.get_target_mapping(data(i,:)))];
+                sr15(i) = string(obj.get_target_mapping(data(i,:)));
             end
             data.(obj.c.COLS.SR15) = sr15;
 
-            tgt = [];
+            tgt = zeros(height(data), 1);
             for i = 1 : height(data)
-                tgt = [tgt; obj.get_annual_reduction_rate(data(i,:))];
+                tgt(i) = obj.get_annual_reduction_rate(data(i,:));
             end
 
             data.(obj.c.COLS.ANNUAL_REDUCTION_RATE) = tgt;
