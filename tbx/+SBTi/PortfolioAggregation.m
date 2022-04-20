@@ -30,7 +30,7 @@ classdef PortfolioAggregation
             % :param column: The column to check
             % :return:
             missing_data = ismissing(data.(column));
-            missing_data = unique(obj.c.COLS.COMPANY_NAME(missing_data));
+            missing_data = unique(data{missing_data, obj.c.COLS.COMPANY_NAME});
 
             if ~isempty(missing_data)
 
@@ -42,7 +42,7 @@ classdef PortfolioAggregation
 
                     error("SBTi:PortfolioAggregation:MissingCompanies", ...
                         "The value for %s is missing for the following companies: %s ", ...
-                        column, strjoin(missing_companies, ',') );
+                        column, strjoin(missing_data, ',') );
 
                 end
 
@@ -99,7 +99,7 @@ classdef PortfolioAggregation
                 value_column = SBTi.PortfolioAggregationMethod.get_value_column(portfolio_aggregation_method, obj.c.COLS);
                 
                 % Calculate the total owned emissions of all companies
-                try
+                if all(data.(value_column))
                     obj.check_column(data, obj.c.COLS.INVESTMENT_VALUE)
                     obj.check_column(data, value_column)
                     use_S1S2 = (data.(obj.c.COLS.SCOPE) == EScope.S1S2) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
@@ -111,7 +111,7 @@ classdef PortfolioAggregation
                         obj.check_column(data, obj.c.COLS.GHG_SCOPE3)
                     end
                     data.(obj.c.COLS.OWNED_EMISSIONS) = (data.(obj.c.COLS.INVESTMENT_VALUE) ./ data.(value_column)) .* (use_S1S2.*data.(obj.c.COLS.GHG_SCOPE12) + use_S3.*data.(obj.c.COLS.GHG_SCOPE3));
-                catch
+                else
                     error( "SBTi:PortfolioAggregation:ColumnIsZero", "To calculate the aggregation, the %s column may not be zero", value_column)
                 end
                 

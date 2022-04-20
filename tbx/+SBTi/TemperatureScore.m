@@ -277,8 +277,10 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
 
         function scores = cap_scores(obj, scores)
 
-            % Cap the temperature scores in the input data frame to a certain value, based on the scenario that's being used.
-            % This can either be for the whole data set, or only for the top X contributors.
+            % Cap the temperature scores in the input data frame to a
+            % certain value, based on the scenario that's being used. This
+            % can either be for the whole data set, or only for the top X
+            % contributors.
 
             % :param scores: The data set with the temperature scores
             % :return: The input data frame, with capped scores
@@ -314,8 +316,11 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                                 min(scores{company_mask, obj.c.COLS.TEMPERATURE_SCORE}, obj.scenario.get_score_cap());
 
                         end
+
                     end
+
                 end
+                
             elseif obj.scenario.scenario_type == SBTi.ScenarioType.HIGHEST_CONTRIBUTORS_APPROVED
                 score_based_on_target = scores.(obj.c.COLS.ENGAGEMENT_TARGET);
                 scores{score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE} = min(scores{score_based_on_target, obj.c.COLS.TEMPERATURE_SCORE}, obj.scenario.get_score_cap());
@@ -453,7 +458,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
 
             %             ctrb = [AggregationContribution.parse_obj(contribution) for contribution in contributions]
             ctrb = SBTi.interfaces.AggregationContribution.parse_obj(contributions);
-            agg = SBTi.interfaces.Aggregation( sum(weighted_scores), ...
+            agg = SBTi.interfaces.Aggregation( sum(weighted_scores, "omitnan"), ...
                 length(weighted_scores) / (total_companies / 100.0), ctrb);
             rc = data.(obj.c.COLS.CONTRIBUTION_RELATIVE);
             ac = data.(obj.c.COLS.CONTRIBUTION);
@@ -486,7 +491,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 filtered_data.(obj.c.COLS.CONTRIBUTION) = ab;
 
                 ip =  obj.calculate_aggregate_score( filtered_data, obj.c.TEMPERATURE_RESULTS, obj.aggregation_method);
-                score_aggregation = SBTi.interfaces.ScoreAggregation( containers.Map, score_aggregation_all, 100*sum( ip ) );
+                score_aggregation = SBTi.interfaces.ScoreAggregation( containers.Map, score_aggregation_all, 100*sum( ip, "omitnan") );
 
                 % If there are grouping column(s) we'll group in pandas and pass the results to the aggregation
                 if ~isempty(obj.grouping)

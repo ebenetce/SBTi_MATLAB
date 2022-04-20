@@ -34,11 +34,17 @@ classdef IDataProviderTarget
                     tb = table(varargin{2:2:end}, 'VariableNames', string(varargin(1:2:end)));
 
                 end
+                
+                idx = isnan(tb{:,'base_year'}) || isnan(tb{:,'end_year'});
+                if any(idx)
+                    error('invalid')
+                end
 
                 obj(height(tb),1) = obj;
                 vars = tb.Properties.VariableNames;
 
                 for i = 1 : height(tb)
+                    
                     obj(i).company_id         = tb{i,'company_id'};
                     obj(i).target_type        = tb{i,'target_type'};
                     if ismember('intensity_metric',vars)
