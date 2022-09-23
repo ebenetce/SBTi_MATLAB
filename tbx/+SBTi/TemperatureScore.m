@@ -248,11 +248,11 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             end
             data = obj.prepare_data(data);
 
-            if ismember(SBTi.interfaces.EScope.S1S2S3, obj.scopes)
+            if ismember(erase(SBTi.interfaces.EScope.S1S2S3,"+"), erase(obj.scopes,"+"))
                 data = obj.calculate_company_score(data);
             end
             % We need to filter the scopes again, because we might have had to add a scope in te preparation step
-            data = data(ismember(data.(obj.c.COLS.SCOPE),obj.scopes),:);
+            data = data(ismember(erase(data.(obj.c.COLS.SCOPE),"+"),erase(obj.scopes,"+")),:);
             data.(obj.c.COLS.TEMPERATURE_SCORE) = round(data.(obj.c.COLS.TEMPERATURE_SCORE),2);
 
         end
@@ -270,7 +270,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 for scope = obj.scopes
                     score_aggregation_scopes.(strrep(scope, "+","")) = obj.get_score_aggregation(data, time_frame, scope);
                 end
-                score_aggregations.(time_frame) = score_aggregation_scopes;
+                score_aggregations.(string(time_frame)) = score_aggregation_scopes;
             end
 
         end
@@ -376,16 +376,16 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :return: The extended data frame
 
             % If scope S1S2S3 is in the list of scopes to calculate, we need to calculate the other two as well
-            sc = obj.scopes;
+            sc = erase(obj.scopes,"+");
 
-            if ismember(SBTi.interfaces.EScope.S1S2S3, obj.scopes) && ~ismember(SBTi.interfaces.EScope.S1S2, obj.scopes)
-                sc = [sc, SBTi.interfaces.EScope.S1S2];
+            if ismember(erase(SBTi.interfaces.EScope.S1S2S3,"+"), obj.scopes) && ~ismember(erase(SBTi.interfaces.EScope.S1S2,"+"), obj.scopes)
+                sc = [sc, erase(SBTi.interfaces.EScope.S1S2,"+")];
             end
-            if ismember(SBTi.interfaces.EScope.S1S2S3, sc) && ~ismember(SBTi.interfaces.EScope.S3, sc)
-                sc = [sc, SBTi.interfaces.EScope.S3];
+            if ismember(erase(SBTi.interfaces.EScope.S1S2S3,"+"), sc) && ~ismember(erase(SBTi.interfaces.EScope.S3,"+"), sc)
+                sc = [sc, erase(SBTi.interfaces.EScope.S3,"+")];
             end
 
-            data = data(ismember(data.(obj.c.COLS.SCOPE), sc) & ismember(data.(obj.c.COLS.TIME_FRAME), obj.time_frames),:);
+            data = data(ismember(erase(data.(obj.c.COLS.SCOPE),"+"), sc) & ismember(data.(obj.c.COLS.TIME_FRAME), obj.time_frames),:);
             data{ismissing(data.(obj.c.COLS.TARGET_REFERENCE_NUMBER)), obj.c.COLS.TARGET_REFERENCE_NUMBER} = obj.c.VALUE_TARGET_REFERENCE_ABSOLUTE;
 
             sr15 = strings(height(data), 1);
@@ -475,7 +475,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :param scope: A scope
             % :return: A score aggregation, containing the aggregations for the whole data set and each individual group
 
-            filtered_data = data( (data.(obj.c.COLS.TIME_FRAME) == time_frame) & (data.(obj.c.COLS.SCOPE) == scope), : );
+            filtered_data = data( (data.(obj.c.COLS.TIME_FRAME) == time_frame) & (erase(data.(obj.c.COLS.SCOPE),"+") == erase(scope,"+")), : );
 
             if ~isempty(obj.grouping)
                 filtered_data(:,obj.grouping) = fillmissing(filtered_data(:,obj.grouping),'constant',"unknown");
