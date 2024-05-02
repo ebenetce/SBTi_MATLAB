@@ -1,6 +1,13 @@
 function cm = plot_grouped_heatmap(grouped_aggregations, timeframe, scope, grouping)
 %PLOT_GROUPED_HEATMAP Summary of this function goes here
 %   Detailed explanation goes here
+
+arguments
+    grouped_aggregations
+    timeframe
+    scope
+    grouping (1,2) string
+end
     
     scope = strrep(scope, "+", "");
     group_1 = grouping(1);
