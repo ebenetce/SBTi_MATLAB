@@ -62,10 +62,6 @@ classdef SBTi
                 else
                     continue
                 end
-
-                if isin == "US8356993076"
-                    disp('here')
-                end
                 
                 if ~isempty(trgt)
                     company.sbti_validated = ismember(obj.c.VALUE_TARGET_SET, trgt.(obj.c.COL_TARGET));
