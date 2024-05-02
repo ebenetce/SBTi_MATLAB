@@ -3,7 +3,7 @@ function print_aggregations(aggregations)
 %   Detailed explanation goes here
 
 arguments
-    aggregations SBTi.interfaces.ScoreAggregations
+    aggregations SBTi.ScoreAggregations
 end
 
 fprintf("%10s %10s %13s\n",'Timeframe', 'Scope', 'Temp score')

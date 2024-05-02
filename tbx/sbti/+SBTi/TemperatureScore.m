@@ -25,8 +25,8 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
         function obj = TemperatureScore(varargin)
             
             p = inputParser();
-            p.addParameter('time_frames', SBTi.interfaces.ETimeFrames)
-            p.addParameter('scopes', SBTi.interfaces.EScope)
+            p.addParameter('time_frames', SBTi.ETimeFrames)
+            p.addParameter('scopes', SBTi.EScope)
             p.addParameter('fallback_score', 3.2)
             p.addParameter('model', 4)
             p.addParameter('scenario', [])
@@ -168,13 +168,13 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :param row: The row to calculate the temperature score for (if the scope of the row isn't s1s2s3, it will return the original score
             % :return: The aggregated temperature score for a company
             
-            if row.(obj.c.COLS.SCOPE) ~= SBTi.interfaces.EScope.S1S2S3
+            if row.(obj.c.COLS.SCOPE) ~= SBTi.EScope.S1S2S3
                 sc = row.(obj.c.COLS.TEMPERATURE_SCORE);
                 rs = row.(obj.c.TEMPERATURE_RESULTS);
                 return
             end
-            s1s2 = company_data(company_data.company_id == row.(obj.c.COLS.COMPANY_ID) & company_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & company_data.scope == SBTi.interfaces.EScope.S1S2,:);
-            s3   = company_data(company_data.company_id == row.(obj.c.COLS.COMPANY_ID) & company_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & company_data.scope == SBTi.interfaces.EScope.S3,:);
+            s1s2 = company_data(company_data.company_id == row.(obj.c.COLS.COMPANY_ID) & company_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & company_data.scope == SBTi.EScope.S1S2,:);
+            s3   = company_data(company_data.company_id == row.(obj.c.COLS.COMPANY_ID) & company_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & company_data.scope == SBTi.EScope.S3,:);
      
             % return default score if ghg scope12 or 3 is empty
             if isempty(s1s2.(obj.c.COLS.GHG_SCOPE12)) ||  isempty(s3.(obj.c.COLS.GHG_SCOPE3))
@@ -248,7 +248,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             end
             data = obj.prepare_data(data);
             
-            if ismember(SBTi.interfaces.EScope.S1S2S3, obj.scopes)
+            if ismember(SBTi.EScope.S1S2S3, obj.scopes)
                 data = obj.calculate_company_score(data);
             end
             % We need to filter the scopes again, because we might have had to add a scope in te preparation step
@@ -264,9 +264,9 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :param data: The results of the calculate method
             % :return: A weighted temperature score for the portfolio
             
-            score_aggregations = SBTi.interfaces.ScoreAggregations();
+            score_aggregations = SBTi.ScoreAggregations();
             for time_frame = obj.time_frames
-                score_aggregation_scopes = SBTi.interfaces.ScoreAggregationScopes();
+                score_aggregation_scopes = SBTi.ScoreAggregationScopes();
                 for scope = obj.scopes
                     score_aggregation_scopes.(strrep(scope, "+","")) = obj.get_score_aggregation(data, time_frame, scope);
                 end
@@ -378,11 +378,11 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % If scope S1S2S3 is in the list of scopes to calculate, we need to calculate the other two as well
             sc = obj.scopes;
             
-            if ismember(SBTi.interfaces.EScope.S1S2S3, obj.scopes) && ~ismember(SBTi.interfaces.EScope.S1S2, obj.scopes)
-                sc = [sc, SBTi.interfaces.EScope.S1S2];
+            if ismember(SBTi.EScope.S1S2S3, obj.scopes) && ~ismember(SBTi.EScope.S1S2, obj.scopes)
+                sc = [sc, SBTi.EScope.S1S2];
             end
-            if ismember(SBTi.interfaces.EScope.S1S2S3, sc) && ~ismember(SBTi.interfaces.EScope.S3, sc)
-                sc = [sc, SBTi.interfaces.EScope.S3];
+            if ismember(SBTi.EScope.S1S2S3, sc) && ~ismember(SBTi.EScope.S3, sc)
+                sc = [sc, SBTi.EScope.S3];
             end
             
             data = data(ismember(data.(obj.c.COLS.SCOPE), sc) & ismember(data.(obj.c.COLS.TIME_FRAME), obj.time_frames),:);
@@ -491,7 +491,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 filtered_data.(obj.c.COLS.CONTRIBUTION) = ab;
                 
                 ip =  obj.calculate_aggregate_score( filtered_data, obj.c.TEMPERATURE_RESULTS, obj.aggregation_method);
-                score_aggregation = SBTi.interfaces.ScoreAggregation( containers.Map, score_aggregation_all, 100*sum( ip, "omitnan") );
+                score_aggregation = SBTi.ScoreAggregation( containers.Map, score_aggregation_all, 100*sum( ip, "omitnan") );
                 
                 % If there are grouping column(s) we'll group in pandas and pass the results to the aggregation
                 if ~isempty(obj.grouping)
@@ -507,7 +507,7 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
                 end
                 
             else
-                score_aggregation = SBTi.interfaces.ScoreAggregation.empty();
+                score_aggregation = SBTi.ScoreAggregation.empty();
             end
         end
     end

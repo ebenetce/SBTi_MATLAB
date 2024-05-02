@@ -1,12 +1,9 @@
-function outfilename = updateCompaniesTakingAction(nvp)
+function outfilename = updateCompaniesTakingAction()
 
-arguments
-    nvp.path = SBTiroot;
-    nvp.name = 'current-Companies-Taking-Action-191.xlsx'
-end
+c = SBTi.configs.PortfolioCoverageTVPConfig;
 
 try
-    outfilename = websave(fullfile(nvp.path, "+SBTi/+configs/inputs", nvp.name), 'https://sciencebasedtargets.org/download/excel');
+    outfilename = websave(c.FILE_TARGETS, c.CTA_FILE_URL);
 catch
     warning('SBTi:utils:updateCompaniesTakingAction:websaveFailed','Unable to update companies taking action spreadsheet')
     outfilename = '';

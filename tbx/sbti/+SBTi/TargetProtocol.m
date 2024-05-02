@@ -72,9 +72,9 @@ classdef TargetProtocol < handle
             target_current = [targets.end_year] >= year(datetime('now'));
 
             % Delete all S1 or S2 targets we can't combine
-            s1 = ([targets.scope] ~= SBTi.interfaces.EScope.S1) | ...
+            s1 = ([targets.scope] ~= SBTi.EScope.S1) | ...
                 (~isnan([targets.coverage_s1]) & ~isnan([targets.base_year_ghg_s1]) & ~isnan([targets.base_year_ghg_s2]));
-            s2 = ([targets.scope] ~= SBTi.interfaces.EScope.S2) | ...
+            s2 = ([targets.scope] ~= SBTi.EScope.S2) | ...
                 (~isnan([targets.coverage_s2]) & ~isnan([targets.base_year_ghg_s1]) & ~isnan([targets.base_year_ghg_s2]));
             
             value = target_type & target_process & target_end_year & target_current & s1 & s2;
@@ -98,14 +98,14 @@ classdef TargetProtocol < handle
 
             grid_columns = [obj.c.COLS.COMPANY_ID, obj.c.COLS.TIME_FRAME, obj.c.COLS.SCOPE];
             companies = unique(obj.company_data.(obj.c.COLS.COMPANY_ID));
-            scopes = [SBTi.interfaces.EScope.S1S2; SBTi.interfaces.EScope.S3; SBTi.interfaces.EScope.S1S2S3];
+            scopes = [SBTi.EScope.S1S2; SBTi.EScope.S3; SBTi.EScope.S1S2S3];
             [empty_columns, ec_idx] = setdiff(obj.target_data.Properties.VariableNames, grid_columns);
             varTypes = varfun(@class,obj.target_data,'OutputFormat','cell');
             varTypes = strrep(varTypes(ec_idx),'int64','double');
             
             ma=size(companies,1);
-            B = lower(string(properties(SBTi.interfaces.ETimeFrames)));
-            mb=size(string(properties(SBTi.interfaces.ETimeFrames)),1);
+            B = lower(string(properties(SBTi.ETimeFrames)));
+            mb=size(string(properties(SBTi.ETimeFrames)),1);
             mc=size(scopes,1);
             [d,b,a]=ndgrid(1:mc,1:mb,1:ma);
             product = [companies(a,:),B(b,:), scopes(d,:)];
@@ -139,7 +139,7 @@ classdef TargetProtocol < handle
         function targets = prepare_targets(obj, targets)
             targets = targets(obj.validate(targets));
             
-            idx = [targets.scope] == SBTi.interfaces.EScope.S2 & ~isnan([targets.base_year_ghg_s2]) & ...
+            idx = [targets.scope] == SBTi.EScope.S2 & ~isnan([targets.base_year_ghg_s2]) & ...
                 ~isnan([targets.coverage_s2]);
             obj.s2_targets = targets(idx);
             
@@ -161,11 +161,11 @@ classdef TargetProtocol < handle
             % :param target: The input target
             % :return The split targets or the original target and None
             
-            if target.scope == SBTi.interfaces.EScope.S1S2S3
+            if target.scope == SBTi.EScope.S1S2S3
                 s1s2 = target;
                 s3 = SBTi.interfaces.IDataProviderTarget.empty();
                 if (~isnan(target.base_year_ghg_s1)) || (target.coverage_s1 == target.coverage_s2)
-                    s1s2.scope = SBTi.interfaces.EScope.S1S2;
+                    s1s2.scope = SBTi.EScope.S1S2;
 
                     if ~isnan(target.base_year_ghg_s1) && ~isnan(target.base_year_ghg_s2) && (target.base_year_ghg_s1 + target.base_year_ghg_s2 ~= 0)
 
@@ -181,7 +181,7 @@ classdef TargetProtocol < handle
 
                 if ~isnan(target.coverage_s3)
                     s3 = target;
-                    s3.scope = SBTi.interfaces.EScope.S3;                    
+                    s3.scope = SBTi.EScope.S3;                    
                 end 
                 s = [s1s2;s3];
             else
@@ -197,7 +197,7 @@ classdef TargetProtocol < handle
             % :param target: The input target
             % :return: The combined target (or the original if no combining was required)
             
-            if target.scope == SBTi.interfaces.EScope.S1 && ~isnan(target.base_year_ghg_s1)
+            if target.scope == SBTi.EScope.S1 && ~isnan(target.base_year_ghg_s1)
                 t = obj.s2_targets;
                 matches = t([t.company_id] == target.company_id & ...
                        [t.base_year] == target.base_year & ...
@@ -236,16 +236,16 @@ classdef TargetProtocol < handle
             
             %         % In both cases the base_year_ghg s1 + s2 should not be zero
             if target.base_year_ghg_s1 + target.base_year_ghg_s2 ~= 0
-                if target.scope == SBTi.interfaces.EScope.S1
+                if target.scope == SBTi.EScope.S1
                     coverage = target.coverage_s1 * target.base_year_ghg_s1 / (target.base_year_ghg_s1 + target.base_year_ghg_s2);
                     target.coverage_s1 = coverage;
                     target.coverage_s2 = coverage;
-                    target.scope = SBTi.interfaces.EScope.S1S2;
-                elseif target.scope == SBTi.interfaces.EScope.S2
+                    target.scope = SBTi.EScope.S1S2;
+                elseif target.scope == SBTi.EScope.S2
                     coverage = target.coverage_s2 * target.base_year_ghg_s2 / (target.base_year_ghg_s1 + target.base_year_ghg_s2);
                     target.coverage_s1 = coverage;
                     target.coverage_s2 = coverage;
-                    target.scope = SBTi.interfaces.EScope.S1S2;
+                    target.scope = SBTi.EScope.S1S2;
                 end
             end
         end
@@ -266,11 +266,11 @@ classdef TargetProtocol < handle
             % 
             % :param target: The input target
             % :return: The original target with a weighted reduction ambition, if so required
-            if target.scope == SBTi.interfaces.EScope.S1S2
+            if target.scope == SBTi.EScope.S1S2
                 if target.coverage_s1 < 0.95
                     target.reduction_ambition = target.reduction_ambition * target.coverage_s1;
                 end
-            elseif target.scope == SBTi.interfaces.EScope.S3
+            elseif target.scope == SBTi.EScope.S3
                 if target.coverage_s3 < 0.67
                     target.reduction_ambition = target.reduction_ambition * target.coverage_s3;
                 end
@@ -285,11 +285,11 @@ classdef TargetProtocol < handle
             now = datetime('now');
             time_frame = target.end_year - year(now);
             if time_frame <= 4
-                target.time_frame = SBTi.interfaces.ETimeFrames.SHORT;
+                target.time_frame = SBTi.ETimeFrames.SHORT;
             elseif time_frame <= 15
-                target.time_frame = SBTi.interfaces.ETimeFrames.MID;
+                target.time_frame = SBTi.ETimeFrames.MID;
             elseif time_frame <= 30
-                target.time_frame = SBTi.interfaces.ETimeFrames.LONG;
+                target.time_frame = SBTi.ETimeFrames.LONG;
             end
 
         end
@@ -328,7 +328,7 @@ classdef TargetProtocol < handle
             % One match with Target data
             series = tgt_data(:,target_columns);
         else
-            if tgt_data.scope(1) == SBTi.interfaces.EScope.S3
+            if tgt_data.scope(1) == SBTi.EScope.S3
                 coverage_column = cols.COVERAGE_S3;
             else
                 coverage_column = cols.COVERAGE_S1;

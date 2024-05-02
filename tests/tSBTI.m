@@ -42,7 +42,7 @@ classdef tSBTI < matlab.unittest.TestCase
         % Test methods
 
         function tTemp(tc)
-            import SBTi.interfaces.*
+            import SBTi.*
             provider = SBTi.data.ExcelProvider("data/data_provider_example.xlsx");
             portfolio = readtable('data/example_portfolio.csv', 'FileEncoding','ISO-8859-15');
 

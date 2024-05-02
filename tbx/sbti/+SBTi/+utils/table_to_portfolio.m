@@ -16,7 +16,7 @@ function list = table_to_portfolio(df_portfolio)
         df_portfolio.(SBTi.configs.ColumnsConfig.ENGAGEMENT_TARGET) = values;
     end
     
-    list = SBTi.interfaces.PortfolioCompany(df_portfolio);
+    list = SBTi.PortfolioCompany(df_portfolio);
     
 %     [PortfolioCompany.parse_obj(company) for company in df_portfolio.to_dict(orient="records")]
     

@@ -59,7 +59,7 @@ classdef PortfolioAggregation
             % :param portfolio_aggregation_method: The method to use
             % :return: The aggregates score
             
-            EScope = SBTi.interfaces.EScope;
+            EScope = SBTi.EScope;
 
             if portfolio_aggregation_method == SBTi.PortfolioAggregationMethod.WATS
                 total_investment_weight = sum(data.(obj.c.COLS.INVESTMENT_VALUE));

@@ -80,8 +80,8 @@ classdef tAggrMethods < matlab.unittest.TestCase
 
             companies = SBTi.utils.table_to_portfolio(portfolio);
 
-            temperature_score = SBTi.TemperatureScore(time_frames=[SBTi.interfaces.ETimeFrames.SHORT, SBTi.interfaces.ETimeFrames.MID, SBTi.interfaces.ETimeFrames.LONG], ...
-                scopes=[SBTi.interfaces.EScope.S1S2, SBTi.interfaces.EScope.S3, SBTi.interfaces.EScope.S1S2S3]);
+            temperature_score = SBTi.TemperatureScore(time_frames=[SBTi.ETimeFrames.SHORT, SBTi.ETimeFrames.MID, SBTi.ETimeFrames.LONG], ...
+                scopes=[SBTi.EScope.S1S2, SBTi.EScope.S3, SBTi.EScope.S1S2S3]);
             amended_portfolio = temperature_score.calculate(data_providers=provider, portfolio=companies);
 
             temperature_score.aggregation_method = SBTi.PortfolioAggregationMethod.WATS;

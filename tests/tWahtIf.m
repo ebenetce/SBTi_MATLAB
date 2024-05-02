@@ -119,7 +119,6 @@ classdef tWahtIf < matlab.unittest.TestCase
         function tTemp(tc)
             import SBTi.data.*
             import SBTi.*
-            import SBTi.interfaces.*
 
             provider = ExcelProvider("data/data_provider_example.xlsx");
             examplePortfoliofile = "data/example_portfolio.csv";
@@ -130,7 +129,7 @@ classdef tWahtIf < matlab.unittest.TestCase
             companies = utils.table_to_portfolio(portfolio);
             portfolio_data = utils.get_data(provider, companies);
 
-            time_frames = interfaces.ETimeFrames.MID; % ETimeFrames: SHORT MID and LONG
+            time_frames = ETimeFrames.MID; % ETimeFrames: SHORT MID and LONG
             scopes = EScope.S1S2S3;                       % EScopes: S1, S2, S3, S1S2 and S1S2S3
 
             temperature_score = TemperatureScore(time_frames=time_frames, scopes=scopes);

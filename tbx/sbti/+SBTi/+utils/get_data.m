@@ -14,7 +14,7 @@ if isempty(target_data)
 end
 
 % Supplement the company data with the SBTi target status
-sbti = SBTi.SBTi;
+sbti = SBTi.data.SBTi;
 company_data = sbti.get_sbti_targets(company_data, SBTi.utils.make_id_map(portfolio));
 
 % Prepare the data

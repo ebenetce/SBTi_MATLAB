@@ -10,11 +10,7 @@ classdef SBTi
             if nargin == 1
                 obj.c = config;
             end
-            try
-                websave(obj.c.FILE_TARGETS, obj.c.CTA_FILE_URL);
-            catch
-                warning('Unable to update the SBTi file targets')
-            end
+            SBTi.utils.updateCompaniesTakingAction();
             opts = detectImportOptions(obj.c.FILE_TARGETS,'TextType','string');
             opts.VariableNamingRule = 'preserve';
             obj.targets = readtable(obj.c.FILE_TARGETS, opts);
@@ -33,25 +29,6 @@ classdef SBTi
             end
 
             obj.targets = obj.filter_cta_file(obj.targets);
-
-        %     for company in companies:
-        %     isin, lei = id_map.get(company.company_id)
-        %     # Check lei and length of lei to avoid zeros 
-        %     if not lei.lower() == 'nan' and len(lei) > 3:
-        %         targets = self.targets[
-        %             self.targets[self.c.COL_COMPANY_LEI] == lei
-        %         ]
-        %     elif not isin.lower() == 'nan':
-        %         targets = self.targets[
-        %             self.targets[self.c.COL_COMPANY_ISIN] == isin
-        %         ]
-        %     else:
-        %         continue
-        %     if len(targets) > 0:
-        %         company.sbti_validated = (
-        %             self.c.VALUE_TARGET_SET in targets[self.c.COL_TARGET].values
-        %         )
-        % return companies   
             
             for i = 1 : numel(companies)
                 company = companies(i);
@@ -98,7 +75,7 @@ classdef SBTi
             % Drop duplicates in the dataframe by waterfall.
             % Do company name last due to risk of misspelled names
             % First drop duplicates on LEI, then on ISIN, then on company name
-            df_nt_targets = unique(targets, 'rows', 'first');          
+            df_nt_targets = unique(df_nt_targets, 'rows', 'first');          
         end
 
     end
