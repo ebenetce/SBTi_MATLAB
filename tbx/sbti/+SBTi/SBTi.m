@@ -10,7 +10,11 @@ classdef SBTi
             if nargin == 1
                 obj.c = config;
             end
-            websave(obj.c.FILE_TARGETS, obj.c.CTA_FILE_URL);
+            try
+                websave(obj.c.FILE_TARGETS, obj.c.CTA_FILE_URL);
+            catch
+                warning('Unable to update the SBTi file targets')
+            end
             opts = detectImportOptions(obj.c.FILE_TARGETS,'TextType','string');
             opts.VariableNamingRule = 'preserve';
             obj.targets = readtable(obj.c.FILE_TARGETS, opts);

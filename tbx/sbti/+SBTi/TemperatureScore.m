@@ -175,12 +175,11 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             end
             s1s2 = company_data(company_data.company_id == row.(obj.c.COLS.COMPANY_ID) & company_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & company_data.scope == SBTi.interfaces.EScope.S1S2,:);
             s3   = company_data(company_data.company_id == row.(obj.c.COLS.COMPANY_ID) & company_data.time_frame == row.(obj.c.COLS.TIME_FRAME) & company_data.scope == SBTi.interfaces.EScope.S3,:);
-            
+     
             % return default score if ghg scope12 or 3 is empty
-            if isempty(row.(obj.c.COLS.GHG_SCOPE12)) ||  isempty(row.(obj.c.COLS.GHG_SCOPE3))
-                conf = SBTi.configs.TemperatureScoreConfig;
-                sc = conf.FALLBACK_SCORE;
-                rs = conf.FALLBACK_SCORE;
+            if isempty(s1s2.(obj.c.COLS.GHG_SCOPE12)) ||  isempty(s3.(obj.c.COLS.GHG_SCOPE3))
+                sc = row.(obj.c.COLS.TEMPERATURE_SCORE);
+                rs = row.(obj.c.TEMPERATURE_RESULTS);
                 return
             end
 
@@ -249,11 +248,11 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             end
             data = obj.prepare_data(data);
             
-            if ismember(erase(SBTi.interfaces.EScope.S1S2S3,"+"), erase(obj.scopes,"+"))
+            if ismember(SBTi.interfaces.EScope.S1S2S3, obj.scopes)
                 data = obj.calculate_company_score(data);
             end
             % We need to filter the scopes again, because we might have had to add a scope in te preparation step
-            data = data(ismember(erase(data.(obj.c.COLS.SCOPE),"+"),erase(obj.scopes,"+")),:);
+            data = data(ismember(data.(obj.c.COLS.SCOPE),obj.scopes),:);
             data.(obj.c.COLS.TEMPERATURE_SCORE) = round(data.(obj.c.COLS.TEMPERATURE_SCORE),2);
             
         end
@@ -377,16 +376,16 @@ classdef TemperatureScore < SBTi.PortfolioAggregation
             % :return: The extended data frame
             
             % If scope S1S2S3 is in the list of scopes to calculate, we need to calculate the other two as well
-            sc = erase(obj.scopes,"+");
+            sc = obj.scopes;
             
-            if ismember(erase(SBTi.interfaces.EScope.S1S2S3,"+"), obj.scopes) && ~ismember(erase(SBTi.interfaces.EScope.S1S2,"+"), obj.scopes)
-                sc = [sc, erase(SBTi.interfaces.EScope.S1S2,"+")];
+            if ismember(SBTi.interfaces.EScope.S1S2S3, obj.scopes) && ~ismember(SBTi.interfaces.EScope.S1S2, obj.scopes)
+                sc = [sc, SBTi.interfaces.EScope.S1S2];
             end
-            if ismember(erase(SBTi.interfaces.EScope.S1S2S3,"+"), sc) && ~ismember(erase(SBTi.interfaces.EScope.S3,"+"), sc)
-                sc = [sc, erase(SBTi.interfaces.EScope.S3,"+")];
+            if ismember(SBTi.interfaces.EScope.S1S2S3, sc) && ~ismember(SBTi.interfaces.EScope.S3, sc)
+                sc = [sc, SBTi.interfaces.EScope.S3];
             end
             
-            data = data(ismember(erase(data.(obj.c.COLS.SCOPE),"+"), sc) & ismember(data.(obj.c.COLS.TIME_FRAME), obj.time_frames),:);
+            data = data(ismember(data.(obj.c.COLS.SCOPE), sc) & ismember(data.(obj.c.COLS.TIME_FRAME), obj.time_frames),:);
             data{ismissing(data.(obj.c.COLS.TARGET_REFERENCE_NUMBER)), obj.c.COLS.TARGET_REFERENCE_NUMBER} = obj.c.VALUE_TARGET_REFERENCE_ABSOLUTE;
             
             sr15 = strings(height(data), 1);
