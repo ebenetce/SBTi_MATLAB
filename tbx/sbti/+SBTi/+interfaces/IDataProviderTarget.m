@@ -1,5 +1,5 @@
 classdef IDataProviderTarget
-    
+
     properties
         company_id (1,1) string
         target_type (1,1) string
@@ -18,18 +18,33 @@ classdef IDataProviderTarget
         time_frame (1,1) string = missing
         achieved_reduction (1,1) double = 0
     end
-    
+
     methods
-        
+
         function obj = IDataProviderTarget(varargin)
-            
-            if nargin == 1 && istable(varargin{1})
-                                
-                tb = varargin{1};
+
+            if nargin > 0
+
+                if nargin == 1 && istable(varargin{1})
+
+                    tb = varargin{1};
+
+                else
+
+                    tb = table(varargin{2:2:end}, 'VariableNames', string(varargin(1:2:end)));
+
+                end
+                
+                idx = isnan(tb{:,'base_year'}) || isnan(tb{:,'end_year'});
+                if any(idx)
+                    error('invalid')
+                end
+
                 obj(height(tb),1) = obj;
                 vars = tb.Properties.VariableNames;
-                
+
                 for i = 1 : height(tb)
+                    
                     obj(i).company_id         = tb{i,'company_id'};
                     obj(i).target_type        = tb{i,'target_type'};
                     if ismember('intensity_metric',vars)
@@ -55,19 +70,20 @@ classdef IDataProviderTarget
                         obj(i).achieved_reduction   = tb{i,'achieved_reduction'};
                     end
                 end
-                
+
             end
+
         end
-        
+
         function value = toTable(obj)
             value = table([obj.company_id]', [obj.target_type]', [obj.intensity_metric]', [obj.scope]', [obj.coverage_s1]', [obj.coverage_s2]',...
-             [obj.coverage_s3]', [obj.reduction_ambition]', [obj.base_year]', [obj.base_year_ghg_s1]', [obj.base_year_ghg_s2]', ...
-              [obj.base_year_ghg_s3]', [obj.start_year]', [obj.end_year]', [obj.time_frame]', [obj.achieved_reduction]', ...
-              'VariableNames',string(properties(obj))');
+                [obj.coverage_s3]', [obj.reduction_ambition]', [obj.base_year]', [obj.base_year_ghg_s1]', [obj.base_year_ghg_s2]', ...
+                [obj.base_year_ghg_s3]', [obj.start_year]', [obj.end_year]', [obj.time_frame]', [obj.achieved_reduction]', ...
+                'VariableNames',string(properties(obj))');
         end
-        
+
     end
-    
+
 end
 %  properties (Access = private)
 %         data table = table('Size', [0, 16], 'VariableNames', ...
@@ -77,7 +93,7 @@ end
 %               'VariableTypes',{'string','string','string','string','double','double','double',...
 %               'double','double','double','double','double','double','double','string','double'});
 %     end
-%     
+%
 %     properties (Dependent)
 %         company_id
 %         target_type
@@ -96,7 +112,7 @@ end
 %         time_frame
 %         achieved_reduction
 %     end
-% 
+%
 % %     properties
 % %         company_id (1,1) string
 % %         target_type (1,1) string
@@ -115,71 +131,71 @@ end
 % %         time_frame (1,1) string
 % %         achieved_reduction (1,1) double = 0
 % %     end
-%     
+%
 %     methods
-%         
+%
 %         function obj = IDataProviderTarget(varargin)
-%             
+%
 %             if nargin == 1 && istable(varargin{1})
-%                                 
+%
 %                 tb = varargin{1};
 % %                 obj(height(tb),1) = obj;
 %                 vars = tb.Properties.VariableNames;
-%                 
+%
 %                 if ~ismember('intensity_metric',vars)
 %                     tb.intensity_metric = repmat(missing, height(tb),1);
 %                 end
 %                 if ~ismember('start_year',vars)
 %                     tb.start_year = NaN(height(tb),1);
 %                 end
-%                 
+%
 %                 if ~ismember('time_frame',vars)
 %                     tb.time_frame = repmat(missing, height(tb),1);
 %                 end
-%                 
+%
 %                 if ~ismember('achieved_reduction',vars)
 %                     tb.achieved_reduction = zeros(height(tb),1);
 %                 end
-%                 
+%
 %                 obj.data = tb;
-%                 
+%
 %             end
 %         end
-%         
+%
 %         function value = toTable(obj)
 %             value = obj.data;
 %         end
 %     end
-%     
+%
 %     methods
 %         function value = get.company_id(obj)
 %             value = obj.data.company_id;
 %         end
-%         
+%
 %         function value = get.target_type(obj)
 %             value = obj.data.target_type;
 %         end
-%         
+%
 %         function value = get.intensity_metric(obj)
 %             value = obj.data.intensity_metric;
 %         end
-%                 
+%
 %         function value = get.scope(obj)
 %             value = obj.data.scope;
 %         end
-%         
+%
 %         function value = get.coverage_s1(obj)
 %             value = obj.data.coverage_s1;
 %         end
-%         
+%
 %         function value = get.coverage_s2(obj)
 %             value = obj.data.coverage_s2;
 %         end
-%         
+%
 %         function value = get.coverage_s3(obj)
 %             value = obj.data.coverage_s3;
 %         end
-%         
+%
 %         function value = get.reduction_ambition(obj)
 %             value = obj.data.reduction_ambition;
 %         end
@@ -208,5 +224,5 @@ end
 %             value = obj.data.achieved_reduction;
 %         end
 %     end
-%     
+%
 % end

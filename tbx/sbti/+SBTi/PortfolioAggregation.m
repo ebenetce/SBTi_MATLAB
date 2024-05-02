@@ -30,11 +30,24 @@ classdef PortfolioAggregation
             % :param column: The column to check
             % :return:
             missing_data = ismissing(data.(column));
-            missing_data = unique(obj.c.COLS.COMPANY_NAME(missing_data));
-            
+            missing_data = unique(data{missing_data, obj.c.COLS.COMPANY_NAME});
+
             if ~isempty(missing_data)
-                error("SBTi:PortfolioAggregation:MissingCompanies", "The value for %s is missing for the following companies: %s ", column, strjoin(missing_companies, ',') );
+
+                if column == obj.c.COLS.GHG_SCOPE12 || column == obj.c.COLS.GHG_SCOPE3
+                    error("SBTi:PortfolioAggregation:MissingCompanies", ...
+                        "A value for %s is needed for all aggregation methods except for TETS. \nSo please try to estimate appropriate values or remove these companies from the aggregation calculation: %s", ...
+                        column, strjoin(missing_data, ',') );
+                else
+
+                    error("SBTi:PortfolioAggregation:MissingCompanies", ...
+                        "The value for %s is missing for the following companies: %s ", ...
+                        column, strjoin(missing_data, ',') );
+
+                end
+
             end
+
         end
         
         function AggregatedScore = calculate_aggregate_score(obj, data, input_column, portfolio_aggregation_method)
@@ -46,6 +59,8 @@ classdef PortfolioAggregation
             % :param portfolio_aggregation_method: The method to use
             % :return: The aggregates score
             
+            EScope = SBTi.interfaces.EScope;
+
             if portfolio_aggregation_method == SBTi.PortfolioAggregationMethod.WATS
                 total_investment_weight = sum(data.(obj.c.COLS.INVESTMENT_VALUE));
                 try
@@ -58,24 +73,24 @@ classdef PortfolioAggregation
                 % Total emissions weighted temperature score (TETS)
             elseif portfolio_aggregation_method == SBTi.PortfolioAggregationMethod.TETS
                 use_S1S2 = (data.(obj.c.COLS.SCOPE) == EScope.S1S2) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
-                use_S3 = (data(obj.c.COLS.SCOPE) == EScope.S3) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
-                if use_S3.any()
+                use_S3 = (data.(obj.c.COLS.SCOPE) == EScope.S3) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
+                if any(use_S3)
                     obj.check_column(data, obj.c.COLS.GHG_SCOPE3)
                 end
-                if use_S1S2.any()
+                if any(use_S1S2)
                     obj.check_column(data, obj.c.COLS.GHG_SCOPE12)
                 end
                 % Calculate the total emissions of all companies
                 emissions = use_S1S2*sum(data.(obj.c.COLS.GHG_SCOPE12)) + use_S3*sum(data.(obj.c.COLS.GHG_SCOPE3));
                 try
-                    AggregatedScore = (use_S1S2*data.(obj.c.COLS.GHG_SCOPE12) + use_S3*data.(obj.c.COLS.GHG_SCOPE3)) / emissions * data.(input_column);
+                    AggregatedScore = (use_S1S2.*data.(obj.c.COLS.GHG_SCOPE12) + use_S3.*data.(obj.c.COLS.GHG_SCOPE3)) ./ emissions .* data.(input_column);
                 catch
                     error( "SBTi:PortfolioAggregation:TotalEmissionsMustBeGreaterThanZero", "The total emissions should be higher than zero" )
                 end
                 
-            elseif PortfolioAggregationMethod.is_emissions_based(portfolio_aggregation_method)
+            elseif SBTi.PortfolioAggregationMethod.is_emissions_based(portfolio_aggregation_method)
                 % These four methods only differ in the way the company is valued.
-                if portfolio_aggregation_method == PortfolioAggregationMethod.ECOTS
+                if portfolio_aggregation_method == SBTi.PortfolioAggregationMethod.ECOTS
                     obj.check_column(data, obj.c.COLS.COMPANY_ENTERPRISE_VALUE)
                     obj.check_column(data, obj.c.COLS.CASH_EQUIVALENTS)
                     data.(obj.c.COLS.COMPANY_EV_PLUS_CASH) = data.(obj.c.COLS.COMPANY_ENTERPRISE_VALUE) + data.(obj.c.COLS.CASH_EQUIVALENTS);
@@ -84,19 +99,19 @@ classdef PortfolioAggregation
                 value_column = SBTi.PortfolioAggregationMethod.get_value_column(portfolio_aggregation_method, obj.c.COLS);
                 
                 % Calculate the total owned emissions of all companies
-                try
+                if all(data.(value_column))
                     obj.check_column(data, obj.c.COLS.INVESTMENT_VALUE)
                     obj.check_column(data, value_column)
                     use_S1S2 = (data.(obj.c.COLS.SCOPE) == EScope.S1S2) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
                     use_S3 = (data.(obj.c.COLS.SCOPE) == EScope.S3) | (data.(obj.c.COLS.SCOPE) == EScope.S1S2S3);
-                    if use_S1S2.any()
+                    if any(use_S1S2)
                         obj.check_column(data, obj.c.COLS.GHG_SCOPE12)
                     end
-                    if use_S3.any()
+                    if any(use_S3)
                         obj.check_column(data, obj.c.COLS.GHG_SCOPE3)
                     end
-                    data.(obj.c.COLS.OWNED_EMISSIONS) = (data.(obj.c.COLS.INVESTMENT_VALUE) / data.(value_column)) * (use_S1S2*data.(obj.c.COLS.GHG_SCOPE12) + use_S3*data.(obj.c.COLS.GHG_SCOPE3));
-                catch
+                    data.(obj.c.COLS.OWNED_EMISSIONS) = (data.(obj.c.COLS.INVESTMENT_VALUE) ./ data.(value_column)) .* (use_S1S2.*data.(obj.c.COLS.GHG_SCOPE12) + use_S3.*data.(obj.c.COLS.GHG_SCOPE3));
+                else
                     error( "SBTi:PortfolioAggregation:ColumnIsZero", "To calculate the aggregation, the %s column may not be zero", value_column)
                 end
                 

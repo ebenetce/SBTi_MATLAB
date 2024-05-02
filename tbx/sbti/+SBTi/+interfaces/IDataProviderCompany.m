@@ -27,20 +27,29 @@ classdef IDataProviderCompany
     methods
         
         function obj = IDataProviderCompany(varargin)
-            
-            if nargin == 1 && istable(varargin{1})
-                
-                tb = varargin{1};
+
+            if nargin > 0
+
+                if nargin == 1 && istable(varargin{1})
+
+                    tb = varargin{1};
+
+                else
+
+                    tb = table(varargin{2:2:end}, 'VariableNames', string(varargin(1:2:end)));
+
+                end
+
                 obj(height(tb),1) = obj;
                 vars = tb.Properties.VariableNames;
-                
+
                 for i = 1 : height(tb)
                     obj(i).company_name  = tb{i,'company_name'};
                     obj(i).company_id    = tb{i,'company_id'};
                     obj(i).isic          = tb{i,'isic'};
                     obj(i).ghg_s1s2      = tb{i,'ghg_s1s2'};
                     obj(i).ghg_s3        = tb{i,'ghg_s3'};
-                    
+
                     obj = addOptionalProp(obj, i, 'country', tb, vars);
                     obj = addOptionalProp(obj, i, 'region', tb, vars);
                     obj = addOptionalProp(obj, i, 'sector', tb, vars);
@@ -48,16 +57,17 @@ classdef IDataProviderCompany
                     obj = addOptionalProp(obj, i, 'industry_level_2', tb, vars);
                     obj = addOptionalProp(obj, i, 'industry_level_3', tb, vars);
                     obj = addOptionalProp(obj, i, 'industry_level_4', tb, vars);
-                    
+
                     obj = addOptionalProp(obj, i, 'company_revenue', tb, vars);
                     obj = addOptionalProp(obj, i, 'company_market_cap', tb, vars);
                     obj = addOptionalProp(obj, i, 'company_enterprise_value', tb, vars);
                     obj = addOptionalProp(obj, i, 'company_total_assets', tb, vars);
                     obj = addOptionalProp(obj, i, 'company_cash_equivalents', tb, vars);
-                    
+
                 end
-                
+
             end
+            
         end
         
         function value = toTable(obj)

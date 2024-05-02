@@ -67,7 +67,6 @@ classdef ExcelProvider <  SBTi.data.DataProvider
             % :param df_targets: pandas Dataframe with targets
             % :return: A list containing the targets
             
-%             targets = SBTi.interfaces.IDataProviderTarget(tb_targets);
             targets = [];
             for i = 1 : height(tb_targets)
                 try
